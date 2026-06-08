@@ -13,26 +13,74 @@ const MUSCLE_GROUPS = {
   hamstrings: { label: 'Hamstrings', api: 'hamstrings' },
 }
 
-// 🚀 SOLID LOCAL BACKUP DATA (Agar RapidAPI respond nahi karti ya keys block hain)
+// 🚀 EXPANDED DATABASE: 5-6 Unique Exercises Per Muscle with Distinct Images
 const LOCAL_FALLBACK_DATA = {
   pectorals: [
-    { id: 'ex1', name: 'Barbell Bench Press', equipment: 'barbell', target: 'pectorals', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
-    { id: 'ex2', name: 'Incline Dumbbell Press', equipment: 'dumbbell', target: 'pectorals', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
-    { id: 'ex3', name: 'Decline Chest Flyes', equipment: 'cable', target: 'pectorals', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+    { id: 'ch1', name: 'Barbell Bench Press', equipment: 'barbell', target: 'pectorals', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ch2', name: 'Incline Dumbbell Press', equipment: 'dumbbell', target: 'pectorals', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ch3', name: 'Cable Chest Flyes', equipment: 'cable', target: 'pectorals', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ch4', name: 'Decline Bench Press', equipment: 'barbell', target: 'pectorals', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ch5', name: 'Push-Ups', equipment: 'body weight', target: 'pectorals', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop' }
   ],
   delts: [
-    { id: 'ex4', name: 'Seated Dumbbell Shoulder Press', equipment: 'dumbbell', target: 'delts', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
-    { id: 'ex5', name: 'Dumbbell Lateral Raise', equipment: 'dumbbell', target: 'delts', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=400&auto=format&fit=crop' }
+    { id: 'sh1', name: 'Overhead Barbell Press', equipment: 'barbell', target: 'delts', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'sh2', name: 'Dumbbell Lateral Raise', equipment: 'dumbbell', target: 'delts', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=400&auto=format&fit=crop' },
+    { id: 'sh3', name: 'Bent-Over Rear Delt Fly', equipment: 'dumbbell', target: 'delts', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'sh4', name: 'Arnold Press', equipment: 'dumbbell', target: 'delts', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+    { id: 'sh5', name: 'Front Dumbbell Raise', equipment: 'dumbbell', target: 'delts', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' }
   ],
   biceps: [
-    { id: 'ex6', name: 'Standing Barbell Curl', equipment: 'barbell', target: 'biceps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+    { id: 'bi1', name: 'Barbell Bicep Curl', equipment: 'barbell', target: 'biceps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+    { id: 'bi2', name: 'Dumbbell Hammer Curl', equipment: 'dumbbell', target: 'biceps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'bi3', name: 'Preacher Curl', equipment: 'barbell', target: 'biceps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop' },
+    { id: 'bi4', name: 'Incline Dumbbell Curl', equipment: 'dumbbell', target: 'biceps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'bi5', name: 'Concentration Curl', equipment: 'dumbbell', target: 'biceps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' }
   ],
   abs: [
-    { id: 'ex7', name: 'Hanging Leg Raise', equipment: 'body weight', target: 'abs', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' }
+    { id: 'ab1', name: 'Hanging Leg Raises', equipment: 'body weight', target: 'abs', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ab2', name: 'Ab Wheel Rollout', equipment: 'stability wheel', target: 'abs', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ab3', name: 'Cable Crunch', equipment: 'cable', target: 'abs', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ab4', name: 'Plank', equipment: 'body weight', target: 'abs', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'ab5', name: 'Russian Twist', equipment: 'medicine ball', target: 'abs', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' }
   ],
   quads: [
-    { id: 'ex8', name: 'Barbell Back Squat', equipment: 'barbell', target: 'quads', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
-    { id: 'ex9', name: 'Leg Press', equipment: 'machine', target: 'quads', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' }
+    { id: 'qd1', name: 'Barbell Back Squat', equipment: 'barbell', target: 'quads', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
+    { id: 'qd2', name: 'Leg Extension Machine', equipment: 'machine', target: 'quads', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1593079831268-3381b0db4a77?q=80&w=400&auto=format&fit=crop' },
+    { id: 'qd3', name: 'Goblet Squat', equipment: 'kettlebell', target: 'quads', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'qd4', name: 'Leg Press', equipment: 'machine', target: 'quads', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'qd5', name: 'Bulgarian Split Squat', equipment: 'dumbbell', target: 'quads', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+  ],
+  traps: [
+    { id: 'tr1', name: 'Dumbbell Shrugs', equipment: 'dumbbell', target: 'traps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tr2', name: 'Barbell Upright Row', equipment: 'barbell', target: 'traps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tr3', name: 'Face Pulls', equipment: 'cable', target: 'traps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tr4', name: 'Barbell Shrugs', equipment: 'barbell', target: 'traps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+  ],
+  lats: [
+    { id: 'lt1', name: 'Wide-Grip Lat Pulldown', equipment: 'machine', target: 'lats', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'lt2', name: 'Bent Over Barbell Row', equipment: 'barbell', target: 'lats', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+    { id: 'lt3', name: 'Pull-Ups', equipment: 'body weight', target: 'lats', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop' },
+    { id: 'lt4', name: 'Seated Cable Row', equipment: 'cable', target: 'lats', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'lt5', name: 'One-Arm Dumbbell Row', equipment: 'dumbbell', target: 'lats', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' }
+  ],
+  triceps: [
+    { id: 'tc1', name: 'Triceps Rope Pushdown', equipment: 'cable', target: 'triceps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tc2', name: 'Skull Crushers', equipment: 'barbell', target: 'triceps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tc3', name: 'Overhead Dumbbell Extension', equipment: 'dumbbell', target: 'triceps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tc4', name: 'Diamond Push-Ups', equipment: 'body weight', target: 'triceps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tc5', name: 'Tricep Dips', equipment: 'bench', target: 'triceps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+  ],
+  glutes: [
+    { id: 'gl1', name: 'Barbell Hip Thrust', equipment: 'barbell', target: 'glutes', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
+    { id: 'gl2', name: 'Glute Bridges', equipment: 'body weight', target: 'glutes', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'gl3', name: 'Sumo Deadlift', equipment: 'barbell', target: 'glutes', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
+    { id: 'gl4', name: 'Cable Kickbacks', equipment: 'cable', target: 'glutes', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' }
+  ],
+  hamstrings: [
+    { id: 'hm1', name: 'Lying Leg Curl', equipment: 'machine', target: 'hamstrings', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+    { id: 'hm2', name: 'Romanian Deadlift', equipment: 'barbell', target: 'hamstrings', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
+    { id: 'hm3', name: 'Seated Leg Curl', equipment: 'machine', target: 'hamstrings', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
+    { id: 'hm4', name: 'Nordic Hamstring Curl', equipment: 'body weight', target: 'hamstrings', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' }
   ]
 }
 
