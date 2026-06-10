@@ -13,7 +13,7 @@ const MUSCLE_GROUPS = {
   hamstrings: { label: 'Hamstrings', api: 'hamstrings' },
 }
 
-// 🚀 EXPANDED DATABASE: 5-6 Unique Exercises Per Muscle with Distinct Images
+// 🚀 EXPANDED DATABASE: 5 Unique Exercises Per Muscle with Distinct Images
 const LOCAL_FALLBACK_DATA = {
   pectorals: [
     { id: 'ch1', name: 'Barbell Bench Press', equipment: 'barbell', target: 'pectorals', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
@@ -54,7 +54,8 @@ const LOCAL_FALLBACK_DATA = {
     { id: 'tr1', name: 'Dumbbell Shrugs', equipment: 'dumbbell', target: 'traps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
     { id: 'tr2', name: 'Barbell Upright Row', equipment: 'barbell', target: 'traps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
     { id: 'tr3', name: 'Face Pulls', equipment: 'cable', target: 'traps', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
-    { id: 'tr4', name: 'Barbell Shrugs', equipment: 'barbell', target: 'traps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' }
+    { id: 'tr4', name: 'Barbell Shrugs', equipment: 'barbell', target: 'traps', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
+    { id: 'tr5', name: 'Overhead Shrugs', equipment: 'barbell', target: 'traps', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' }
   ],
   lats: [
     { id: 'lt1', name: 'Wide-Grip Lat Pulldown', equipment: 'machine', target: 'lats', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
@@ -74,181 +75,197 @@ const LOCAL_FALLBACK_DATA = {
     { id: 'gl1', name: 'Barbell Hip Thrust', equipment: 'barbell', target: 'glutes', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
     { id: 'gl2', name: 'Glute Bridges', equipment: 'body weight', target: 'glutes', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
     { id: 'gl3', name: 'Sumo Deadlift', equipment: 'barbell', target: 'glutes', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
-    { id: 'gl4', name: 'Cable Kickbacks', equipment: 'cable', target: 'glutes', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' }
+    { id: 'gl4', name: 'Cable Kickbacks', equipment: 'cable', target: 'glutes', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' },
+    { id: 'gl5', name: 'Walking Lunges', equipment: 'dumbbell', target: 'glutes', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1434608519344-49d77a699e1d?q=80&w=400&auto=format&fit=crop' }
   ],
   hamstrings: [
     { id: 'hm1', name: 'Lying Leg Curl', equipment: 'machine', target: 'hamstrings', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop' },
     { id: 'hm2', name: 'Romanian Deadlift', equipment: 'barbell', target: 'hamstrings', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop' },
     { id: 'hm3', name: 'Seated Leg Curl', equipment: 'machine', target: 'hamstrings', difficulty: 'beginner', gifUrl: 'https://images.unsplash.com/photo-1517838277536-f5f99be501cd?q=80&w=400&auto=format&fit=crop' },
-    { id: 'hm4', name: 'Nordic Hamstring Curl', equipment: 'body weight', target: 'hamstrings', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' }
+    { id: 'hm4', name: 'Nordic Hamstring Curl', equipment: 'body weight', target: 'hamstrings', difficulty: 'advanced', gifUrl: 'https://images.unsplash.com/photo-1574680096145-d05b474e2155?q=80&w=400&auto=format&fit=crop' },
+    { id: 'hm5', name: 'Single-Leg RDL', equipment: 'dumbbell', target: 'hamstrings', difficulty: 'intermediate', gifUrl: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop' }
   ]
 }
 
 function BodyMap({ view, selected, onSelect, isDark }) {
-  const fill = (muscle) => {
-    if (selected === muscle) return '#FF6B35'
-    return isDark ? '#2a2a2a' : '#d0d0d0'
+  // 🚀 React Local state for hover tracking to eliminate sticky behaviors completely
+  const [hovered, setHovered] = useState(null)
+
+  // 🎨 High-tech translucent color setup
+  const getFillColor = (muscle) => {
+    if (selected === muscle) return 'rgba(255, 107, 53, 0.25)' // Soft high-tech glass fill
+    if (hovered === muscle) return 'rgba(255, 107, 53, 0.12)'   // Light interactive aura glow
+    return isDark ? 'rgba(42, 42, 42, 0.6)' : 'rgba(208, 208, 208, 0.5)' 
   }
-  const hover = '#FF6B3580'
-  const stroke = isDark ? '#444' : '#bbb'
+  
+  // ⚡ Active sharp border indicators
+  const getStrokeColor = (muscle) => {
+    if (selected === muscle) return '#FF6B35' // Sharp solid active boundary
+    if (hovered === muscle) return 'rgba(255, 107, 53, 0.6)'
+    return isDark ? '#444' : '#bbb'
+  }
+
+  const getStrokeWidth = (muscle) => {
+    return selected === muscle || hovered === muscle ? '1.5' : '1'
+  }
 
   return (
     <svg viewBox="0 0 200 400" className="w-full max-w-[220px] mx-auto cursor-pointer select-none">
       {/* Body outline */}
-      <ellipse cx="100" cy="40" rx="28" ry="32" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+      <ellipse cx="100" cy="40" rx="28" ry="32" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
 
       {view === 'front' ? (
         <>
           {/* Neck */}
-          <rect x="90" y="68" width="20" height="18" rx="4" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="90" y="68" width="20" height="18" rx="4" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
 
           {/* Chest */}
           <ellipse cx="100" cy="110" rx="38" ry="28"
-            fill={fill('chest')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('chest')} stroke={getStrokeColor('chest')} strokeWidth={getStrokeWidth('chest')}
             onClick={() => onSelect('chest')}
-            onMouseEnter={e => { if (selected !== 'chest') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'chest') e.target.style.fill = fill('chest') }}
+            onMouseEnter={() => setHovered('chest')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Shoulders */}
           <ellipse cx="58" cy="95" rx="18" ry="14"
-            fill={fill('shoulders')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('shoulders')} stroke={getStrokeColor('shoulders')} strokeWidth={getStrokeWidth('shoulders')}
             onClick={() => onSelect('shoulders')}
-            onMouseEnter={e => { if (selected !== 'shoulders') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'shoulders') e.target.style.fill = fill('shoulders') }}
+            onMouseEnter={() => setHovered('shoulders')}
+            onMouseLeave={() => setHovered(null)}
           />
           <ellipse cx="142" cy="95" rx="18" ry="14"
-            fill={fill('shoulders')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('shoulders')} stroke={getStrokeColor('shoulders')} strokeWidth={getStrokeWidth('shoulders')}
             onClick={() => onSelect('shoulders')}
-            onMouseEnter={e => { if (selected !== 'shoulders') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'shoulders') e.target.style.fill = fill('shoulders') }}
+            onMouseEnter={() => setHovered('shoulders')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Biceps */}
           <rect x="34" y="108" width="18" height="48" rx="9"
-            fill={fill('biceps')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('biceps')} stroke={getStrokeColor('biceps')} strokeWidth={getStrokeWidth('biceps')}
             onClick={() => onSelect('biceps')}
-            onMouseEnter={e => { if (selected !== 'biceps') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'biceps') e.target.style.fill = fill('biceps') }}
+            onMouseEnter={() => setHovered('biceps')}
+            onMouseLeave={() => setHovered(null)}
           />
           <rect x="148" y="108" width="18" height="48" rx="9"
-            fill={fill('biceps')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('biceps')} stroke={getStrokeColor('biceps')} strokeWidth={getStrokeWidth('biceps')}
             onClick={() => onSelect('biceps')}
-            onMouseEnter={e => { if (selected !== 'biceps') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'biceps') e.target.style.fill = fill('biceps') }}
+            onMouseEnter={() => setHovered('biceps')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Forearms */}
-          <rect x="28" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
-          <rect x="156" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="28" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
+          <rect x="156" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
 
           {/* Abs */}
           <rect x="80" y="135" width="40" height="55" rx="8"
-            fill={fill('abs')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('abs')} stroke={getStrokeColor('abs')} strokeWidth={getStrokeWidth('abs')}
             onClick={() => onSelect('abs')}
-            onMouseEnter={e => { if (selected !== 'abs') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'abs') e.target.style.fill = fill('abs') }}
+            onMouseEnter={() => setHovered('abs')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Quads */}
           <rect x="72" y="198" width="24" height="72" rx="10"
-            fill={fill('quads')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('quads')} stroke={getStrokeColor('quads')} strokeWidth={getStrokeWidth('quads')}
             onClick={() => onSelect('quads')}
-            onMouseEnter={e => { if (selected !== 'quads') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'quads') e.target.style.fill = fill('quads') }}
+            onMouseEnter={() => setHovered('quads')}
+            onMouseLeave={() => setHovered(null)}
           />
           <rect x="104" y="198" width="24" height="72" rx="10"
-            fill={fill('quads')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('quads')} stroke={getStrokeColor('quads')} strokeWidth={getStrokeWidth('quads')}
             onClick={() => onSelect('quads')}
-            onMouseEnter={e => { if (selected !== 'quads') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'quads') e.target.style.fill = fill('quads') }}
+            onMouseEnter={() => setHovered('quads')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Calves front */}
-          <rect x="74" y="276" width="20" height="52" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
-          <rect x="106" y="276" width="20" height="52" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="74" y="276" width="20" height="52" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
+          <rect x="106" y="276" width="20" height="52" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
         </>
       ) : (
         <>
           {/* Neck back */}
-          <rect x="90" y="68" width="20" height="18" rx="4" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="90" y="68" width="20" height="18" rx="4" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
 
           {/* Traps */}
           <ellipse cx="100" cy="95" rx="38" ry="18"
-            fill={fill('traps')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('traps')} stroke={getStrokeColor('traps')} strokeWidth={getStrokeWidth('traps')}
             onClick={() => onSelect('traps')}
-            onMouseEnter={e => { if (selected !== 'traps') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'traps') e.target.style.fill = fill('traps') }}
+            onMouseEnter={() => setHovered('traps')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Shoulders back */}
           <ellipse cx="58" cy="95" rx="18" ry="14"
-            fill={fill('shoulders')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('shoulders')} stroke={getStrokeColor('shoulders')} strokeWidth={getStrokeWidth('shoulders')}
             onClick={() => onSelect('shoulders')}
-            onMouseEnter={e => { if (selected !== 'shoulders') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'shoulders') e.target.style.fill = fill('shoulders') }}
+            onMouseEnter={() => setHovered('shoulders')}
+            onMouseLeave={() => setHovered(null)}
           />
           <ellipse cx="142" cy="95" rx="18" ry="14"
-            fill={fill('shoulders')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('shoulders')} stroke={getStrokeColor('shoulders')} strokeWidth={getStrokeWidth('shoulders')}
             onClick={() => onSelect('shoulders')}
-            onMouseEnter={e => { if (selected !== 'shoulders') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'shoulders') e.target.style.fill = fill('shoulders') }}
+            onMouseEnter={() => setHovered('shoulders')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Lats */}
           <ellipse cx="100" cy="128" rx="38" ry="30"
-            fill={fill('lats')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('lats')} stroke={getStrokeColor('lats')} strokeWidth={getStrokeWidth('lats')}
             onClick={() => onSelect('lats')}
-            onMouseEnter={e => { if (selected !== 'lats') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'lats') e.target.style.fill = fill('lats') }}
+            onMouseEnter={() => setHovered('lats')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Triceps */}
           <rect x="34" y="108" width="18" height="48" rx="9"
-            fill={fill('triceps')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('triceps')} stroke={getStrokeColor('triceps')} strokeWidth={getStrokeWidth('triceps')}
             onClick={() => onSelect('triceps')}
-            onMouseEnter={e => { if (selected !== 'triceps') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'triceps') e.target.style.fill = fill('triceps') }}
+            onMouseEnter={() => setHovered('triceps')}
+            onMouseLeave={() => setHovered(null)}
           />
           <rect x="148" y="108" width="18" height="48" rx="9"
-            fill={fill('triceps')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('triceps')} stroke={getStrokeColor('triceps')} strokeWidth={getStrokeWidth('triceps')}
             onClick={() => onSelect('triceps')}
-            onMouseEnter={e => { if (selected !== 'triceps') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'triceps') e.target.style.fill = fill('triceps') }}
+            onMouseEnter={() => setHovered('triceps')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Forearms back */}
-          <rect x="28" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
-          <rect x="156" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="28" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
+          <rect x="156" y="160" width="16" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
 
           {/* Lower back */}
-          <rect x="80" y="155" width="40" height="35" rx="6" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="80" y="155" width="40" height="35" rx="6" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
 
           {/* Glutes */}
           <ellipse cx="100" cy="205" rx="32" ry="20"
-            fill={fill('glutes')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('glutes')} stroke={getStrokeColor('glutes')} strokeWidth={getStrokeWidth('glutes')}
             onClick={() => onSelect('glutes')}
-            onMouseEnter={e => { if (selected !== 'glutes') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'glutes') e.target.style.fill = fill('glutes') }}
+            onMouseEnter={() => setHovered('glutes')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Hamstrings */}
           <rect x="72" y="222" width="24" height="60" rx="10"
-            fill={fill('hamstrings')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('hamstrings')} stroke={getStrokeColor('hamstrings')} strokeWidth={getStrokeWidth('hamstrings')}
             onClick={() => onSelect('hamstrings')}
-            onMouseEnter={e => { if (selected !== 'hamstrings') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'hamstrings') e.target.style.fill = fill('hamstrings') }}
+            onMouseEnter={() => setHovered('hamstrings')}
+            onMouseLeave={() => setHovered(null)}
           />
           <rect x="104" y="222" width="24" height="60" rx="10"
-            fill={fill('hamstrings')} stroke={stroke} strokeWidth="1"
+            fill={getFillColor('hamstrings')} stroke={getStrokeColor('hamstrings')} strokeWidth={getStrokeWidth('hamstrings')}
             onClick={() => onSelect('hamstrings')}
-            onMouseEnter={e => { if (selected !== 'hamstrings') e.target.style.fill = hover }}
-            onMouseLeave={e => { if (selected !== 'hamstrings') e.target.style.fill = fill('hamstrings') }}
+            onMouseEnter={() => setHovered('hamstrings')}
+            onMouseLeave={() => setHovered(null)}
           />
 
           {/* Calves back */}
-          <rect x="74" y="288" width="20" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
-          <rect x="106" y="288" width="20" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={stroke} strokeWidth="1" />
+          <rect x="74" y="288" width="20" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
+          <rect x="106" y="288" width="20" height="44" rx="8" fill={isDark ? '#1f1f1f' : '#e8e8e8'} stroke={isDark ? '#444' : '#bbb'} strokeWidth="1" />
         </>
       )}
     </svg>
@@ -277,7 +294,6 @@ function Explore({ theme }) {
 
     const apiKey = import.meta.env.VITE_RAPIDAPI_KEY
 
-    // Fallback directly check agar API key structure set nahi h code par
     if (!apiKey) {
       console.warn("RapidAPI key missing in environment variables. Loading local fallback instead.")
       setTimeout(() => {
@@ -295,7 +311,6 @@ function Explore({ theme }) {
     })
       .then(res => res.json())
       .then(data => {
-        // ExerciseDB error messages bhi objects mein bhejta hai string array ke bajay
         if (Array.isArray(data) && data.length > 0) {
           setExercises(data)
         } else {
@@ -336,8 +351,7 @@ function Explore({ theme }) {
           {/* Left — Body Map */}
           <div>
             {/* Front / Back Toggle */}
-            <div className="flex mb-6 border"
-              style={{ borderColor: border }}>
+            <div className="flex mb-6 border" style={{ borderColor: border }}>
               <button
                 onClick={() => setView('front')}
                 className={`flex-1 py-2.5 text-xs font-black tracking-[2px] uppercase transition-colors ${view === 'front' ? 'bg-[#FF6B35] text-white' : isDark ? 'bg-[#161616] text-gray-400 hover:text-white' : 'bg-white text-gray-400 hover:text-[#121212]'}`}>
@@ -382,8 +396,7 @@ function Explore({ theme }) {
           {/* Right — Exercise List */}
           <div>
             {!selected && (
-              <div className="flex flex-col items-center justify-center h-64 border"
-                style={{ borderColor: border, background: surface }}>
+              <div className="flex flex-col items-center justify-center h-64 border" style={{ borderColor: border, background: surface }}>
                 <div className="text-4xl mb-3">👈</div>
                 <p className={`text-sm font-bold tracking-wider uppercase ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   Select a muscle to get started
@@ -392,8 +405,7 @@ function Explore({ theme }) {
             )}
 
             {loading && (
-              <div className="flex flex-col items-center justify-center h-64 border"
-                style={{ borderColor: border, background: surface }}>
+              <div className="flex flex-col items-center justify-center h-64 border" style={{ borderColor: border, background: surface }}>
                 <div className="w-8 h-8 border-2 border-[#FF6B35] border-t-transparent rounded-full animate-spin mb-3" />
                 <p className={`text-sm font-bold tracking-wider uppercase ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                   Loading exercises
@@ -410,10 +422,8 @@ function Explore({ theme }) {
             {selected && !loading && !error && (
               <>
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="font-black tracking-wider uppercase text-xl"
-                    style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>
-                    {MUSCLE_GROUPS[selected]?.label}
-                    <span className="text-[#FF6B35]"> Exercises</span>
+                  <h2 className="font-black tracking-wider uppercase text-xl" style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>
+                    {MUSCLE_GROUPS[selected]?.label}<span className="text-[#FF6B35]"> Exercises</span>
                   </h2>
                   <span className={`text-xs font-bold tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
                     {exercises.length} found
@@ -430,9 +440,7 @@ function Explore({ theme }) {
                         onMouseLeave={e => e.currentTarget.style.borderColor = border}>
 
                         {ex.gifUrl && (
-                          <img src={ex.gifUrl} alt={ex.name}
-                            className="w-full h-40 object-cover"
-                            style={{ background: isDark ? '#1f1f1f' : '#f0f0f0' }} />
+                          <img src={ex.gifUrl} alt={ex.name} className="w-full h-40 object-cover" style={{ background: isDark ? '#1f1f1f' : '#f0f0f0' }} />
                         )}
 
                         <div className="p-4 flex-1 flex flex-col justify-between">
