@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useSearchParams } from 'react-router-dom';
 
 const EXERCISES = [
   'Bench Press', 'Push-ups', 'Incline Bench Press',
@@ -13,13 +14,15 @@ const EXERCISES = [
 ]
 
 function FormCheck({ theme }) {
+  const [searchParams] = useSearchParams();
+  const initialExercise = searchParams.get('selected') || '';
   const isDark = theme === 'dark'
   const surface = isDark ? '#161616' : '#ffffff'
   const border = isDark ? '#2a2a2a' : '#e0e0e0'
   const muted = isDark ? 'text-gray-400' : 'text-gray-500'
 
-  const [exercise, setExercise] = useState('')
-  const [search, setSearch] = useState('')
+  const [exercise, setExercise] = useState(initialExercise);
+  const [search, setSearch] = useState(initialExercise);
   const [image, setImage] = useState(null)
   const [imageBase64, setImageBase64] = useState(null)
   const [loading, setLoading] = useState(false)

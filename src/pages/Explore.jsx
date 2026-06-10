@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom';
 
 const MUSCLE_GROUPS = {
   chest: { label: 'Chest', api: 'pectorals' },
@@ -273,6 +274,7 @@ function BodyMap({ view, selected, onSelect, isDark }) {
 }
 
 function Explore({ theme }) {
+  const navigate = useNavigate();
   const isDark = theme === 'dark'
   const [view, setView] = useState('front')
   const [selected, setSelected] = useState(null)
@@ -458,9 +460,12 @@ function Explore({ theme }) {
                           
                           <div className="flex items-center justify-between pt-2 border-t border-dashed" style={{ borderColor: border }}>
                             <span className="text-xs text-[#2EC4B6] font-bold tracking-wider uppercase">{ex.target}</span>
-                            <button className="text-[11px] font-black tracking-wider uppercase text-[#FF6B35] hover:text-white transition-colors">
-                              Check Form →
-                            </button>
+<button 
+  onClick={() => navigate(`/form-check?selected=${encodeURIComponent(ex.name)}`)}
+  className="text-[11px] font-black tracking-wider uppercase text-[#FF6B35] hover:text-white transition-colors"
+>
+  Check Form →
+</button>
                           </div>
                         </div>
                       </div>
