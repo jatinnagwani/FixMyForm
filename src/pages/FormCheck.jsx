@@ -53,19 +53,27 @@ function FormCheck({ theme }) {
     setFeedback(null)
     setError(null)
 
-const prompt = `You are a strict fitness biomechanics coach analyzing this photo for the exercise: ${exercise}.
+const prompt = `You are a strict fitness biomechanics coach examining this photo.
+The user has selected the exercise: "${exercise}".
 
-CRITICAL: Do NOT give generic templates or repeat phrases like "spinal alignment looks neutral" or "core activation is stable". 
+CRITICAL VISION TASK:
+1. Verify if the person in the photo is actually performing a "${exercise}".
+2. If they are performing a completely different movement (for example, doing a Push-up on the floor when "${exercise}" is selected), you must immediately stop the analysis.
 
-Look closely at the person's specific body angles, joint positions, bar/floor path, and depth in this EXACT uploaded image. Point out real visible details.
-
-Return feedback in EXACTLY this JSON format:
+If there is a mismatch, you must return EXACTLY this JSON format and nothing else:
 {
-  "good": ["List 1-2 specific things actually done well in this exact photo"],
-  "fix": [{"issue": "Describe a real visible form mistake in this photo", "correction": "Exactly how to adjust their body to fix it"}],
-  "alternatives": [{"name": "Exercise name", "reason": "Why it suits them"}]
+  "good": ["Analysis Not Possible"],
+  "fix": [{"issue": "Photo and selected exercise don't match.", "correction": "Please select the correct exercise from the dropdown or upload a matching photo of a ${exercise}."}],
+  "alternatives": [{"name": "Fix Selection", "reason": "Make sure your uploaded visual matches the exercise label."}]
 }
-Return ONLY the raw JSON object, no markdown blocks, no extra text.`
+
+If the photo matches a "${exercise}", analyze their form normally and return:
+{
+  "good": ["1-2 specific things done well"],
+  "fix": [{"issue": "visible form mistake", "correction": "how to adjust body to fix it"}],
+  "alternatives": [{"name": "exercise name", "reason": "why it suits them"}]
+}
+Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
 
     try {
       const res = await fetch(
