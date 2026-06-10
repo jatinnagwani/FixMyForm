@@ -150,7 +150,7 @@ Return ONLY the raw JSON object, no markdown blocks, no extra text.`
   }
 
   return (
-    <div className={`min-h-screen pt-20 ${isDark ? 'bg-[#0d0d0d] text-white' : 'bg-[#F4F6F6] text-[#121212]'}`}>
+    <div onClick={() => setShowDropdown(false)} className={`min-h-screen pt-20 ${isDark ? 'bg-[#0d0d0d] text-white' : 'bg-[#F4F6F6] text-[#121212]'}`}>
 
       {/* Header */}
       <div className="px-4 sm:px-8 lg:px-16 py-12">
@@ -180,19 +180,25 @@ Return ONLY the raw JSON object, no markdown blocks, no extra text.`
               </label>
               <div className="relative">
                 <input
-                  type="text"
-                  value={exercise || search}
-                  onChange={(e) => {
-                    setSearch(e.target.value)
-                    setExercise('')
-                    setShowDropdown(true)
-                  }}
-                  onFocus={() => setShowDropdown(true)}
-                  placeholder="Search exercise"
-                  className={`w-full border px-4 py-3 text-sm font-semibold focus:outline-none focus:border-[#FF6B35] transition-colors ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
-                />
+  type="text"
+  value={exercise || search}
+onChange={(e) => {
+  setSearch(e.target.value)
+  setExercise('')
+  setShowDropdown(true)
+}}
+onFocus={() => {
+  setExercise('')
+  setSearch('')
+  setShowDropdown(true)
+}}
+
+  onClick={(e) => e.stopPropagation()}
+  placeholder="Search exercise"
+  className={`w-full border px-4 py-3 text-sm font-semibold focus:outline-none focus:border-[#FF6B35] transition-colors ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+/>
                 {showDropdown && (search || !exercise) && filtered.length > 0 && (
-                  <div className={`absolute top-full left-0 right-0 z-10 border max-h-48 overflow-y-auto ${isDark ? 'bg-[#161616] border-[#2a2a2a]' : 'bg-white border-[#e0e0e0]'}`}>
+                  <div onClick={(e) => e.stopPropagation()} className={`absolute top-full left-0 right-0 z-10 border max-h-48 overflow-y-auto ${isDark ? 'bg-[#161616] border-[#2a2a2a]' : 'bg-white border-[#e0e0e0]'}`}>
                     {filtered.map(ex => (
                       <button key={ex}
                         onClick={() => {
