@@ -53,19 +53,19 @@ function FormCheck({ theme }) {
     setFeedback(null)
     setError(null)
 
-    const prompt = `You are an expert fitness coach analyzing exercise form from a photo.
-Analyze the person's form in this image performing: ${exercise}.
+const prompt = `You are a strict fitness biomechanics coach analyzing this photo for the exercise: ${exercise}.
 
-You must respond with a single, valid JSON object matching this schema layout structure perfectly:
+CRITICAL: Do NOT give generic templates or repeat phrases like "spinal alignment looks neutral" or "core activation is stable". 
+
+Look closely at the person's specific body angles, joint positions, bar/floor path, and depth in this EXACT uploaded image. Point out real visible details.
+
+Return feedback in EXACTLY this JSON format:
 {
-  "good": ["2-3 things done correctly"],
-  "fix": [{"issue": "specific form issue description", "correction": "how to fix it"}],
-  "alternatives": [{"name": "exercise name", "reason": "why it helps"}]
+  "good": ["List 1-2 specific things actually done well in this exact photo"],
+  "fix": [{"issue": "Describe a real visible form mistake in this photo", "correction": "Exactly how to adjust their body to fix it"}],
+  "alternatives": [{"name": "Exercise name", "reason": "Why it suits them"}]
 }
-
-CRITICAL RULES:
-- Output must be valid parsable JSON structure only.
-- Do NOT wrap your response in markdown code blocks or extra text strings.`
+Return ONLY the raw JSON object, no markdown blocks, no extra text.`
 
     try {
       const res = await fetch(
@@ -76,7 +76,7 @@ CRITICAL RULES:
           mode: 'cors',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer gsk_CqpjfkOEySrdgqJe7BOgWdyb3FY5CHKrFLOP2fhvj9SVsjSHz1R'
+            'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
           },
           body: JSON.stringify({
             model: "llama-3.2-11b-vision-preview", 
@@ -94,7 +94,7 @@ CRITICAL RULES:
                 ]
               }
             ],
-            temperature: 0.1,
+            temperature: 0.6,
             max_tokens: 1024
           })
         }
