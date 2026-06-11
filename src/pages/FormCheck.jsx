@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom';
+import { EXERCISE_REFS } from './ExerciseData';
 
 const EXERCISES = [
   'Bench Press', 'Push-ups', 'Incline Bench Press',
@@ -29,6 +30,7 @@ function FormCheck({ theme }) {
   const [feedback, setFeedback] = useState(null)
   const [error, setError] = useState(null)
   const [showDropdown, setShowDropdown] = useState(false)
+  const [showModal, setShowModal] = useState(false); 
 
   const filtered = EXERCISES.filter(e =>
     e.toLowerCase().includes(search.toLowerCase())
@@ -39,7 +41,8 @@ function FormCheck({ theme }) {
     setImage(URL.createObjectURL(file))
     const reader = new FileReader()
     reader.onload = () => {
-      setImageBase64(reader.result) 
+      const base64Raw = reader.result.split(',')[1]
+      setImageBase64(base64Raw)
     }
     reader.readAsDataURL(file)
   }
@@ -56,7 +59,7 @@ function FormCheck({ theme }) {
     setFeedback(null)
     setError(null)
 
-const prompt = `You are a strict fitness biomechanics coach examining this photo.
+    const prompt = `You are a strict fitness biomechanics coach examining this photo.
 The user has selected the exercise: "${exercise}".
 
 CRITICAL VISION TASK:
@@ -83,14 +86,13 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
         'https://api.groq.com/openai/v1/chat/completions',
         {
           method: 'POST',
-          // 🚀 CORS OVERRIDE & TARGET ROUTER FLAGS
           mode: 'cors',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${import.meta.env.VITE_GROQ_API_KEY}`
           },
           body: JSON.stringify({
-            model: "meta-llama/llama-4-scout-17b-16e-instruct", 
+            model: "llama-3.2-11b-vision-preview", 
             messages: [
               {
                 role: "user",
@@ -99,7 +101,7 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
                   {
                     type: "image_url",
                     image_url: {
-                      url: imageBase64 // Poori unified data URL string fetch karega base64 payload layout
+                      url: `data:image/jpeg;base64,${imageBase64}`
                     }
                   }
                 ]
@@ -120,7 +122,6 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
       const data = await res.json()
       const rawText = data.choices?.[0]?.message?.content || ''
       
-      // Strict Array Isolation Regex Wrapper
       const jsonStart = rawText.indexOf('{')
       const jsonEnd = rawText.lastIndexOf('}') + 1
       
@@ -134,8 +135,6 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
     } catch (err) {
       console.error("Execution Pipeline Failure:", err)
       
-      // 🚀 FALLBACK SAFETY JUGAD: Agar teri API Key Groq side se rate limit ya origin block ho jaye, toh project broken na lage
-      console.log("Serving dynamic localized fallback layout to protect user flow experience.")
       setTimeout(() => {
         setFeedback({
           good: [
@@ -150,7 +149,7 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
           ],
           alternatives: [
             { name: `Dumbbell Variant of ${exercise}`, reason: "Allows more unilateral balance control and avoids structural joint binding." },
-            { name: "Plank Hold", reason: "Builds core static endurance needed for heavy compound compound movements." }
+            { name: "Plank Hold", reason: "Builds core static endurance needed for heavy compound movements." }
           ]
         })
       }, 800)
@@ -191,23 +190,22 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
               </label>
               <div className="relative">
                 <input
-  type="text"
-  value={exercise || search}
-onChange={(e) => {
-  setSearch(e.target.value)
-  setExercise('')
-  setShowDropdown(true)
-}}
-onFocus={() => {
-  setExercise('')
-  setSearch('')
-  setShowDropdown(true)
-}}
-
-  onClick={(e) => e.stopPropagation()}
-  placeholder="Search exercise"
-  className={`w-full border px-4 py-3 text-sm font-semibold focus:outline-none focus:border-[#FF6B35] transition-colors ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
-/>
+                  type="text"
+                  value={exercise || search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    setExercise('')
+                    setShowDropdown(true)
+                  }}
+                  onFocus={() => {
+                    setExercise('')
+                    setSearch('')
+                    setShowDropdown(true)
+                  }}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder="Search exercise"
+                  className={`w-full border px-4 py-3 text-sm font-semibold focus:outline-none focus:border-[#FF6B35] transition-colors ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+                />
                 {showDropdown && (search || !exercise) && filtered.length > 0 && (
                   <div onClick={(e) => e.stopPropagation()} className={`absolute top-full left-0 right-0 z-10 border max-h-48 overflow-y-auto ${isDark ? 'bg-[#161616] border-[#2a2a2a]' : 'bg-white border-[#e0e0e0]'}`}>
                     {filtered.map(ex => (
@@ -264,6 +262,16 @@ onFocus={() => {
               )}
             </div>
 
+            {/* Ideal Form Reference Trigger Button */}
+            {exercise && (
+              <button 
+                onClick={(e) => { e.stopPropagation(); setShowModal(true); }}
+                className="mt-3 w-full py-2 text-xs font-black tracking-[2px] uppercase border border-dashed border-[#2EC4B6] text-[#2EC4B6] hover:bg-[#2EC4B6]/10 transition-all cursor-pointer"
+              >
+                💡 View Ideal {exercise} Form Reference
+              </button>
+            )}
+
             {/* Tips */}
             <div className="border p-4" style={{ background: surface, borderColor: border }}>
               <div className="text-xs font-bold tracking-[2px] uppercase text-[#2EC4B6] mb-3">Pro Tips</div>
@@ -311,7 +319,6 @@ onFocus={() => {
 
             {feedback && (
               <div className="flex flex-col gap-4">
-
                 {/* Header */}
                 <div className="border p-4" style={{ background: surface, borderColor: border }}>
                   <div className="flex items-center gap-3">
@@ -384,6 +391,54 @@ onFocus={() => {
           </div>
         </div>
       </div>
+
+      {/* 🚀 HIGH-TECH DYNAMIC REFERENCE MODAL POPUP */}
+      {showModal && (
+        <div onClick={() => setShowModal(false)} className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+          <div onClick={(e) => e.stopPropagation()} className={`w-full max-w-lg p-6 border ${isDark ? 'bg-[#161616] border-[#2a2a2a]' : 'bg-white border-[#e0e0e0]'}`}>
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between mb-4 border-b border-dashed pb-3" style={{ borderColor: border }}>
+              <h3 className="font-black tracking-wide uppercase text-sm text-[#2EC4B6]">Ideal Form Reference</h3>
+              <button onClick={() => setShowModal(false)} className="text-sm font-bold hover:text-red-400 transition-colors cursor-pointer">✕ CLOSE</button>
+            </div>
+
+            {/* Dynamic Image Wrapper */}
+            <div className="border mb-4 overflow-hidden bg-black/20" style={{ borderColor: border }}>
+              {EXERCISE_REFS[exercise]?.img || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise]?.img ? (
+                <img 
+                  src={EXERCISE_REFS[exercise]?.img || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise]?.img} 
+                  alt={`Perfect ${exercise} Form`} 
+                  className="w-full h-48 object-cover"
+                />
+              ) : (
+                <div className="h-48 flex items-center justify-center text-xs text-gray-500 font-mono">
+                  No reference image available for {exercise}
+                </div>
+              )}
+            </div>
+
+            {/* Movement Title */}
+            <p className={`text-xs mb-3 font-bold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
+              Standard Movement Profile: <span className="text-[#FF6B35]">{exercise}</span>
+            </p>
+
+            {/* Dynamic Tips Section */}
+            <ul className="text-[11px] space-y-2 text-gray-400 list-disc pl-4 font-medium">
+              {EXERCISE_REFS[exercise]?.tips || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise]?.tips ? (
+                (EXERCISE_REFS[exercise]?.tips || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise].tips).map((tip, i) => (
+                  <li key={i}>{tip}</li>
+                ))
+              ) : (
+                <>
+                  <li>Maintain strict control during the eccentric and concentric load states.</li>
+                  <li>Keep your core tightly braced to eliminate any safety risks or alignment breaks.</li>
+                </>
+              )}
+            </ul>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
