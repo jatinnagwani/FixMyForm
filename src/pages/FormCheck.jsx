@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom';
-import { EXERCISE_REFS } from './ExerciseData';
+import { EXERCISE_REFS } from './ExerciseData.js';
 
 const EXERCISES = [
   'Bench Press', 'Push-ups', 'Incline Bench Press',
@@ -403,39 +403,66 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
               <button onClick={() => setShowModal(false)} className="text-sm font-bold hover:text-red-400 transition-colors cursor-pointer">✕ CLOSE</button>
             </div>
 
-            {/* Dynamic Image Wrapper */}
-            <div className="border mb-4 overflow-hidden bg-black/20" style={{ borderColor: border }}>
-              {EXERCISE_REFS[exercise]?.img || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise]?.img ? (
-                <img 
-                  src={EXERCISE_REFS[exercise]?.img || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise]?.img} 
-                  alt={`Perfect ${exercise} Form`} 
-                  className="w-full h-48 object-cover"
-                />
-              ) : (
-                <div className="h-48 flex items-center justify-center text-xs text-gray-500 font-mono">
-                  No reference image available for {exercise}
-                </div>
-              )}
-            </div>
+{/* Dynamic Image Wrapper — Ab yeh partial name bhi match kar lega! */}
+<div className="border mb-4 overflow-hidden bg-black/20" style={{ borderColor: border }}>
+  {(() => {
+    if (!exercise) return null;
+    const currentEx = exercise.toLowerCase();
+    
+    // Smooth matching check
+    const matchedKey = Object.keys(EXERCISE_REFS || {}).find(key => 
+      currentEx.includes(key.toLowerCase()) || key.toLowerCase().includes(currentEx)
+    );
+
+    const finalRef = EXERCISE_REFS[matchedKey] || EXERCISE_REFS[exercise];
+
+    if (finalRef?.img) {
+      return (
+        <img 
+          src={finalRef.img} 
+          alt={`Perfect ${exercise} Form`} 
+          className="w-full h-48 object-cover"
+        />
+      );
+    } else {
+      return (
+        <div className="h-48 flex items-center justify-center text-xs text-gray-500 font-mono">
+          No reference image available for {exercise}
+        </div>
+      );
+    }
+  })()}
+</div>
 
             {/* Movement Title */}
             <p className={`text-xs mb-3 font-bold uppercase tracking-wider ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
               Standard Movement Profile: <span className="text-[#FF6B35]">{exercise}</span>
             </p>
 
-            {/* Dynamic Tips Section */}
-            <ul className="text-[11px] space-y-2 text-gray-400 list-disc pl-4 font-medium">
-              {EXERCISE_REFS[exercise]?.tips || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise]?.tips ? (
-                (EXERCISE_REFS[exercise]?.tips || EXERCISE_REFS[exercise === 'Push-Ups' ? 'Push-ups' : exercise].tips).map((tip, i) => (
-                  <li key={i}>{tip}</li>
-                ))
-              ) : (
-                <>
-                  <li>Maintain strict control during the eccentric and concentric load states.</li>
-                  <li>Keep your core tightly braced to eliminate any safety risks or alignment breaks.</li>
-                </>
-              )}
-            </ul>
+{/* Dynamic Tips Section */}
+<ul className="text-[11px] space-y-2 text-gray-400 list-disc pl-4 font-medium">
+  {(() => {
+    if (!exercise) return null;
+    const currentEx = exercise.toLowerCase();
+    
+    const matchedKey = Object.keys(EXERCISE_REFS || {}).find(key => 
+      currentEx.includes(key.toLowerCase()) || key.toLowerCase().includes(currentEx)
+    );
+
+    const finalRef = EXERCISE_REFS[matchedKey] || EXERCISE_REFS[exercise];
+
+    if (finalRef?.tips && Array.isArray(finalRef.tips)) {
+      return finalRef.tips.map((tip, i) => <li key={i}>{tip}</li>);
+    } else {
+      return (
+        <>
+          <li>Maintain strict control during the eccentric and concentric load states.</li>
+          <li>Keep your core tightly braced to eliminate any safety risks or alignment breaks.</li>
+        </>
+      );
+    }
+  })()}
+</ul>
           </div>
         </div>
       )}
