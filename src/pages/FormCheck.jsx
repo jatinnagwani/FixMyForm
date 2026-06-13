@@ -1,6 +1,6 @@
-import { useState } from 'react'
 import { useSearchParams } from 'react-router-dom';
 import { EXERCISE_REFS } from './ExerciseData.js';
+import { useState, useEffect } from 'react'
 
 const EXERCISES = [
   'Bench Press', 'Push-ups', 'Incline Bench Press',
@@ -31,6 +31,7 @@ function FormCheck({ theme }) {
   const [error, setError] = useState(null)
   const [showDropdown, setShowDropdown] = useState(false)
   const [showModal, setShowModal] = useState(false); 
+  const [refImage, setRefImage] = useState(null)
 
   const filtered = EXERCISES.filter(e =>
     e.toLowerCase().includes(search.toLowerCase())
@@ -52,6 +53,18 @@ function FormCheck({ theme }) {
     const file = e.dataTransfer.files[0]
     if (file) handleImage(file)
   }
+
+  useEffect(() => {
+  if (!exercise) return
+  setRefImage(null)
+  fetch(`https://exercisedb-api.vercel.app/api/v1/exercises/name/${encodeURIComponent(exercise.toLowerCase())}`)
+    .then(res => res.json())
+    .then(data => {
+      const gif = data?.data?.[0]?.gifUrl
+      if (gif) setRefImage(gif)
+    })
+    .catch(() => setRefImage(null))
+}, [exercise])
 
   const analyzeFom = async () => {
     if (!exercise || !imageBase64) return
@@ -416,21 +429,17 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
 
     const finalRef = EXERCISE_REFS[matchedKey] || EXERCISE_REFS[exercise];
 
-    if (finalRef?.img) {
-      return (
-        <img 
-          src={finalRef.img} 
-          alt={`Perfect ${exercise} Form`} 
-          className="w-full h-48 object-cover"
-        />
-      );
-    } else {
-      return (
-        <div className="h-48 flex items-center justify-center text-xs text-gray-500 font-mono">
-          No reference image available for {exercise}
-        </div>
-      );
-    }
+if (refImage) {
+  return (
+    <img src={refImage} alt={`Perfect ${exercise} Form`} className="w-full h-48 object-cover" />
+  )
+} else {
+  return (
+    <div className="h-48 flex items-center justify-center text-xs text-gray-500 font-mono">
+      No reference image available for {exercise}
+    </div>
+  )
+}
   })()}
 </div>
 
