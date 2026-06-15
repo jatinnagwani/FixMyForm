@@ -59,22 +59,21 @@ function Navbar({ theme, toggleTheme }) {
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <img src="/logo.png" alt="FixMyForm" className="h-8 w-8 sm:h-10 sm:w-10 lg:h-12 lg:w-12 object-contain" />
-          <span style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif', letterSpacing: '0.08em' }}
-            className={`text-xl sm:text-2xl lg:text-3xl uppercase ${isDark ? 'text-white' : 'text-[#121212]'}`}>
-            Fix<span className="text-[#FF6B35]">My</span>Form
-          </span>
+<span className={`text-xl sm:text-2xl lg:text-3xl uppercase font-ops tracking-wider ${isDark ? 'text-white' : 'text-[#121212]'}`}>
+  Fix<span className="text-[#FF6B35]">My</span>Form
+</span>
         </Link>
 
         {/* Center — Links + Upgraded Desktop Search Container */}
-        <div className="hidden md:flex items-center gap-6 lg:gap-10">
-          <Link to="/explore"
-            className={`text-xs lg:text-sm font-bold tracking-[0.18em] uppercase transition-colors ${isActive('/explore') ? 'text-[#FF6B35]' : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#121212]'}`}>
-            Explore
-          </Link>
-          <Link to="/form-check"
-            className={`text-xs lg:text-sm font-bold tracking-[0.18em] uppercase transition-colors ${isActive('/form-check') ? 'text-[#FF6B35]' : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#121212]'}`}>
-            Form Check
-          </Link>
+<div className="hidden md:flex items-center gap-6 lg:gap-10">
+<Link to="/explore"
+    className={`text-xs lg:text-sm font-ui font-semibold tracking-[0.15em] uppercase transition-colors ${isActive('/explore') ? 'text-[#FF6B35]' : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#121212]'}`}>
+    Explore
+  </Link>
+  <Link to="/form-check"
+    className={`text-xs lg:text-sm font-ui font-semibold tracking-[0.15em] uppercase transition-colors ${isActive('/form-check') ? 'text-[#FF6B35]' : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#121212]'}`}>
+    Form Check
+  </Link>
           
           {/* 🔍 Desktop Search Box with Dropdown Menu */}
           <div className="relative">
@@ -139,10 +138,10 @@ function Navbar({ theme, toggleTheme }) {
           >
             {isDark ? '☀' : '☾'}
           </button>
-          <Link to="/form-check"
-            className="bg-[#FF6B35] hover:bg-[#cc5429] text-white px-4 lg:px-6 py-2 text-xs font-black tracking-[0.18em] uppercase transition-colors">
-            Get Started
-          </Link>
+<Link to="/form-check"
+  className="bg-[#FF6B35] hover:bg-[#cc5429] text-white px-4 lg:px-6 py-2 text-xs font-ui font-bold tracking-[0.12em] uppercase transition-colors">
+  Get Started
+</Link>
         </div>
 
         {/* Hamburger */}

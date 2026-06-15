@@ -26,8 +26,8 @@ function Home({ theme }) {
               <span className="text-xs font-bold tracking-[2px] uppercase text-[#FF6B35]">AI-Powered Form Coach</span>
             </div>
 
-            <h1 className="font-black leading-[0.95] tracking-wider mb-6"
-              style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif', fontSize: 'clamp(4rem, 9vw, 9rem)', letterSpacing: '2px' }}>
+            <h1 className="font-heading uppercase leading-[0.95] tracking-wide mb-6"
+              style={{ fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
               TRAIN<br />
               <span className="text-[#FF6B35]">HARDER.</span><br />
               MOVE <span className="text-[#2EC4B6]">RIGHT.</span>
@@ -99,9 +99,8 @@ function Home({ theme }) {
             { num: '0₹', label: 'Always Free' },
           ].map((stat, i) => (
             <div key={i} className="text-center">
-              <div className="text-[#FF6B35] text-5xl tracking-wider"
-                style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>{stat.num}</div>
-              <div className={`text-xs font-semibold tracking-[2px] uppercase mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{stat.label}</div>
+              <div className="text-[#FF6B35] text-5xl tracking-wide font-heading">{stat.num}</div>
+              <div className={`text-xs font-bold font-ui tracking-[2px] uppercase mt-1 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>{stat.label}</div>
             </div>
           ))}
         </div>
@@ -113,8 +112,7 @@ function Home({ theme }) {
           <div className="w-8 h-px bg-[#FF6B35]" />
           <span className="text-xs font-bold tracking-[3px] uppercase text-[#FF6B35]">What We Do</span>
         </div>
-        <h2 className="text-4xl lg:text-6xl font-black tracking-wider mb-4"
-          style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>
+        <h2 className="text-4xl lg:text-6xl uppercase font-heading tracking-wide leading-none mb-4">
           EVERYTHING YOU NEED.<br />NOTHING YOU DON'T.
         </h2>
         <p className={`max-w-lg leading-relaxed mb-16 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -131,10 +129,9 @@ function Home({ theme }) {
               style={{ background: surface, border: `1px solid ${border}` }}
               onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,107,53,0.4)'}
               onMouseLeave={e => e.currentTarget.style.borderColor = border}>
-              <div className="text-6xl font-black leading-none mb-4 text-[rgba(255,107,53,0.1)]"
-                style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>{f.num}</div>
+              <div className="text-6xl font-heading leading-none mb-4 text-[rgba(255,107,53,0.1)]">{f.num}</div>
               <div className="text-3xl mb-4">{f.icon}</div>
-              <div className="font-black text-lg tracking-wider uppercase mb-3">{f.title}</div>
+              <div className="font-ui font-bold text-lg tracking-wide uppercase mb-3">{f.title}</div>
               <div className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{f.desc}</div>
               <div className="mt-4 text-xs font-bold tracking-[2px] text-[#2EC4B6]">{f.tag}</div>
             </div>
@@ -149,8 +146,7 @@ function Home({ theme }) {
           <div className="w-8 h-px bg-[#FF6B35]" />
           <span className="text-xs font-bold tracking-[3px] uppercase text-[#FF6B35]">How It Works</span>
         </div>
-        <h2 className="text-4xl lg:text-6xl font-black tracking-wider mb-16"
-          style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>
+        <h2 className="text-4xl lg:text-6xl uppercase font-heading tracking-wide leading-none mb-16">
           FOUR STEPS.<br />ZERO CONFUSION.
         </h2>
         <div className="grid grid-cols-2 lg:grid-cols-4">
@@ -162,9 +158,8 @@ function Home({ theme }) {
           ].map((step, i) => (
             <div key={i} className="p-6 lg:p-8 text-center"
               style={{ borderRight: i % 2 === 0 ? `1px solid ${border}` : 'none' }}>
-              <div className="text-6xl lg:text-7xl font-black leading-none mb-2 text-[rgba(255,107,53,0.12)]"
-                style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>{step.num}</div>
-              <div className="font-black text-sm tracking-wider uppercase mb-2">{step.title}</div>
+              <div className="text-6xl lg:text-7xl font-heading leading-none mb-2 text-[rgba(255,107,53,0.12)]">{step.num}</div>
+              <div className="font-ui font-bold text-sm tracking-wider uppercase mb-2">{step.title}</div>
               <div className={`text-sm leading-relaxed ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>{step.desc}</div>
             </div>
           ))}
@@ -175,8 +170,8 @@ function Home({ theme }) {
       <section className="px-4 sm:px-8 lg:px-16 py-28 text-center relative overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none"
           style={{ background: 'radial-gradient(circle, rgba(255,107,53,0.06) 0%, transparent 70%)' }} />
-        <h2 className="font-black tracking-wider leading-[0.95] mb-6 relative"
-          style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif', fontSize: 'clamp(3rem, 6vw, 6rem)' }}>
+        <h2 className="font-heading uppercase tracking-wide leading-[0.95] mb-6 relative"
+          style={{ fontSize: 'clamp(3rem, 6vw, 6rem)' }}>
           STOP GUESSING.<br />
           <span className="text-[#FF6B35]">START FIXING.</span>
         </h2>
@@ -198,8 +193,7 @@ function Home({ theme }) {
       {/* Footer */}
       <footer className="px-4 sm:px-8 lg:px-16 py-8 flex items-center justify-between flex-wrap gap-4 border-t"
         style={{ background: surface, borderColor: border }}>
-        <div className="text-2xl tracking-wider"
-          style={{ fontFamily: 'Impact, Haettenschweiler, sans-serif' }}>
+        <div className="text-2xl font-ui font-bold tracking-wide uppercase">
           Fix<span className="text-[#FF6B35]">My</span>Form
         </div>
         <div className={`text-xs tracking-wider ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
@@ -208,7 +202,7 @@ function Home({ theme }) {
         <div className="flex gap-6">
           {['Explore', 'Form Check'].map(link => (
             <Link key={link} to={link === 'Explore' ? '/explore' : '/form-check'}
-              className={`text-xs tracking-wider uppercase no-underline hover:text-[#FF6B35] transition-colors ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
+              className={`text-xs font-ui font-semibold tracking-wide uppercase no-underline hover:text-[#FF6B35] transition-colors ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>
               {link}
             </Link>
           ))}
