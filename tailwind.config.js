@@ -7,9 +7,10 @@ export default {
 theme: {
   extend: {
 fontFamily: {
-  heading: ['Oswald', 'sans-serif'],
-  ui: ['Syne', 'sans-serif'],
-  ops: ['"Black Ops One"', 'system-ui'], // 🪖 New Military Stencil Font
+  heading: ['"Saira Condensed"', 'sans-serif'], // 🏋️‍♂️ Home Page Headings (Heavy Square Look)
+  ui: ['Saira', 'sans-serif'],                 // ⚡ Home Page Descriptions & Cards
+  nav: ['Syne', 'sans-serif'],                // 🎨 Navbar Elements (Stays Protected)
+  ops: ['"Black Ops One"', 'system-ui'],       // 🪖 Brand Logo (Stays Protected)
 },
   },
 },
