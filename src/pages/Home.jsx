@@ -1,10 +1,22 @@
 import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 
 function Home({ theme }) {
   const isDark = theme === 'dark'
 
   const surface = isDark ? '#161616' : '#ffffff'
   const border = isDark ? '#2a2a2a' : '#e0e0e0'
+  
+  // 🧠 State for dynamic subtitle switcher
+  const subtitles = ["AI-Powered Form Coach", "Instant Rep Analyzer", "Injury Prevention Engine"]
+  const [subIndex, setSubIndex] = useState(0)
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSubIndex((prev) => (prev + 1) % subtitles.length)
+    }, 3000)
+    return () => clearInterval(timer)
+  }, [])
 
   return (
     <div className={`${isDark ? 'bg-[#0d0d0d] text-white' : 'bg-[#F4F6F6] text-[#121212]'}`}>
@@ -21,10 +33,12 @@ function Home({ theme }) {
 
           {/* Left */}
           <div>
-            <div className="inline-flex items-center gap-2 border border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.1)] px-4 py-1.5 mb-8">
-              <div className="w-1.5 h-1.5 bg-[#FF6B35] rounded-full" style={{ animation: 'pulse 1.5s infinite' }} />
-              <span className="text-xs font-bold tracking-[2px] uppercase text-[#FF6B35]">AI-Powered Form Coach</span>
-            </div>
+<div className="inline-flex items-center gap-2 border border-[rgba(255,107,53,0.3)] bg-[rgba(255,107,53,0.1)] px-4 py-1.5 mb-8 min-w-[210px]">
+  <div className="w-1.5 h-1.5 bg-[#FF6B35] rounded-full" style={{ animation: 'pulse 1.5s infinite' }} />
+  <span className="text-xs font-bold tracking-[2px] uppercase text-[#FF6B35] transition-all duration-500">
+    {subtitles[subIndex]}
+  </span>
+</div>
 
             <h1 className="font-heading uppercase leading-[0.95] tracking-wide mb-6"
               style={{ fontSize: 'clamp(4rem, 9vw, 9rem)' }}>
@@ -62,11 +76,15 @@ function Home({ theme }) {
                 <span className="text-xs font-bold tracking-[1px] text-[#2EC4B6]">● AI Analyzing</span>
               </div>
 
-              <div className={`border border-dashed border-[rgba(255,107,53,0.3)] p-16 text-center mb-6 ${isDark ? 'bg-[#0d0d0d]' : 'bg-[#F4F6F6]'}`}>
-                <div className="text-5xl mb-3">📸</div>
-                <div className="text-[#FF6B35] font-bold mb-1">Drop your photo here</div>
-                <div className={`text-sm ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>or tap to upload</div>
-              </div>
+<div className={`border border-dashed border-[rgba(255,107,53,0.3)] p-16 text-center mb-6 relative overflow-hidden ${isDark ? 'bg-[#0d0d0d]' : 'bg-[#F4F6F6]'}`}>
+  {/* 🪖 Holographic Laser Scanner Line */}
+  <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#2EC4B6] to-transparent shadow-[0_0_12px_#2EC4B6] pointer-events-none"
+    style={{ animation: 'scan 2.5s linear infinite alternate' }} />
+
+  <div className="text-5xl mb-3 relative z-10">📸</div>
+  <div className="text-[#FF6B35] font-bold mb-1 relative z-10">Drop your photo here</div>
+  <div className={`text-sm relative z-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>or tap to upload</div>
+</div>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -125,10 +143,19 @@ function Home({ theme }) {
             { num: '02', icon: '🤖', title: 'AI Form Checker', desc: 'Upload a photo mid-rep. Our AI compares it against perfect form and gives you honest, specific feedback instantly.', tag: '→ Check My Form' },
             { num: '03', icon: '⚡', title: 'Smart Alternatives', desc: "Can't do this exercise? AI suggests 1-2 alternatives that hit the same muscle — based on your situation.", tag: '→ Find Alternatives' },
           ].map((f, i) => (
-            <div key={i} className="p-8 cursor-pointer transition-all duration-200 hover:-translate-y-1"
-              style={{ background: surface, border: `1px solid ${border}` }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,107,53,0.4)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor = border}>
+<div key={i} className={`p-8 cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:bg-[#090909] border ${isDark ? 'bg-[#161616]' : 'bg-white'}`}
+  style={{ 
+    borderColor: isDark ? '#2a2a2a' : '#e0e0e0',
+    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+  }}
+  onMouseEnter={e => {
+    e.currentTarget.style.borderColor = f.num === '02' ? '#2EC4B6' : '#FF6B35';
+    e.currentTarget.style.boxShadow = f.num === '02' ? '0 0 20px rgba(46,196,182,0.15)' : '0 0 20px rgba(255,107,53,0.15)';
+  }}
+  onMouseLeave={e => {
+    e.currentTarget.style.borderColor = isDark ? '#2a2a2a' : '#e0e0e0';
+    e.currentTarget.style.boxShadow = 'none';
+  }}>
               <div className="text-6xl font-heading leading-none mb-4 text-[rgba(255,107,53,0.1)]">{f.num}</div>
               <div className="text-3xl mb-4">{f.icon}</div>
               <div className="font-ui font-bold text-lg tracking-wide uppercase mb-3">{f.title}</div>
@@ -209,13 +236,17 @@ function Home({ theme }) {
         </div>
       </footer>
 
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
-        }
-        .no-underline { text-decoration: none; }
-      `}</style>
+<style>{`
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  @keyframes scan {
+    0% { top: 0%; }
+    100% { top: 100%; }
+  }
+  .no-underline { text-decoration: none; }
+`}</style>
     </div>
   )
 }
