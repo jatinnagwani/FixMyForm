@@ -6,6 +6,8 @@ function Navbar({ theme, toggleTheme }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [toolsOpen, setToolsOpen] = useState(false)
+  const [calcWeight, setCalcWeight] = useState('')
+  const [calcReps, setCalcReps] = useState('')
   const [activeTool, setActiveTool] = useState(null) // 🧠 Tracks active tool view
   const [showSuggestions, setShowSuggestions] = useState(false)
   const location = useLocation()
@@ -263,7 +265,141 @@ function Navbar({ theme, toggleTheme }) {
                   {activeTool === 'tdee' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🔥 TDEE Energy Multiplier integration zone coming up!</div>}
                   {activeTool === 'tracker' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">💾 History Log!</div>}
                   {activeTool === 'radar' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🎯 Analytics Chart!</div>}
-                  {activeTool === '1rm' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🏋️ 1-Rep Max Calculator View!</div>}
+                  {activeTool === '1rm' && (
+  <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
+    {/* 🔥 Main Title Highlighted with Bottom Border/Underline */}
+    <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
+      <span>🏋️</span> 1-Rep Max Calculator
+    </h4>
+    
+    <div className="flex flex-col gap-4">
+      {/* Weight Input */}
+      <div>
+        <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Weight Lifted (KG)</label>
+        <input 
+          type="number" 
+          value={calcWeight} 
+          onChange={(e) => setCalcWeight(e.target.value)}
+          placeholder="e.g., 80" 
+          className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+        />
+      </div>
+
+      {/* Reps Input */}
+      <div>
+        <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Reps Performed</label>
+        <input 
+          type="number" 
+          value={calcReps} 
+          onChange={(e) => setCalcReps(e.target.value)}
+          placeholder="e.g., 6" 
+          className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+        />
+      </div>
+
+      {/* Dynamic Conditional Rendering for Lower Section */}
+      {calcWeight && calcReps ? (
+        /* Dynamic Live Calculation Output Card */
+        <div className="mt-2 p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 text-center rounded-xs flex flex-col gap-1">
+          <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">Estimated 1-Rep Max</span>
+          <span className="text-3xl font-black text-[#FF6B35] tracking-wide my-1">
+            {Math.round(parseFloat(calcWeight) * (1 + parseInt(calcReps) / 30))} KG
+          </span>
+          <span className="text-[10px] text-gray-500 font-medium leading-relaxed">
+            Calculated in real-time using the standard Epley math equation.
+          </span>
+        </div>
+      ) : (
+        /* Educational Dashboard Layout */
+        <div className="mt-2 flex flex-col gap-4">
+          <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">
+            Enter your weight and reps above to dynamically calculate your maximum capacity.
+          </div>
+          
+          {/* Section 1: Reps Percentage Breakdown Quick Table */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
+              💡 Reps Strength Conversion Guide
+            </span>
+            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+              <span className="text-gray-400">1 Rep</span>
+              <span className="text-gray-300 font-bold">100% of 1RM</span>
+            </div>
+            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+              <span className="text-gray-400">5 Reps</span>
+              <span className="text-gray-300 font-bold">~87% of 1RM</span>
+            </div>
+            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+              <span className="text-gray-400">10 Reps</span>
+              <span className="text-gray-300 font-bold">~75% of 1RM</span>
+            </div>
+          </div>
+
+          {/* Section 2: Targeted Training Intensity Guide */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
+              🎯 1RM Intensity Target Zones
+            </span>
+            <div className="flex flex-col gap-1.5 text-[11px]">
+              <div>
+                <span className="text-gray-300 font-bold">80-100% 1RM (1-3 Reps):</span>
+                <span className="text-gray-400 block pl-1">Promotes overall strength and mechanical power output.</span>
+              </div>
+              <div>
+                <span className="text-gray-300 font-bold">70-80% 1RM (7-12 Reps):</span>
+                <span className="text-gray-400 block pl-1">Optimal spectrum for muscle hypertrophy (growth).</span>
+              </div>
+              <div>
+                <span className="text-gray-300 font-bold">~70% 1RM (10-15 Reps):</span>
+                <span className="text-gray-400 block pl-1">Builds local muscular endurance and recovery capability.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Safety & Measurement Protocol Checklist */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-red-400 tracking-wider block mb-1">
+              🛡️ Safe Measurement Protocols
+            </span>
+            <div className="flex flex-col gap-2 text-[11px] text-gray-400 leading-relaxed">
+              <p>
+                <strong className="text-gray-300">Estimation Method:</strong> Lift a challenging weight for 3-10 reps until form failure. Lower rep ranges yield closer accuracy to your actual 1RM.
+              </p>
+              <p>
+                <strong className="text-gray-300">Direct Method:</strong> Progressively load plates with 2-5 min rest cycles. Always prioritize a spotter and strict form over mechanical ego lifting.
+              </p>
+            </div>
+          </div>
+
+          {/* Section 4: Advanced Plateau Breaking Tactics */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">
+              ⚡ Systems to Improve Your 1RM
+            </span>
+            <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
+              <p>
+                <strong className="text-gray-300">Pyramid Sets:</strong> Start with lower weight and higher reps, progressively scaling up the load while dropping the repetition matrix.
+              </p>
+              <p>
+                <strong className="text-gray-300">Compound / Supersets:</strong> Execute back-to-back exercises working surrounding supporting muscle groups without rest to force neural adaptation.
+              </p>
+              <p>
+                <strong className="text-gray-300">Strategic Recovery:</strong> Overtraining actively limits mechanical force output. Ensure deep neurological rest blocks to let muscle tissue rebuild.
+              </p>
+            </div>
+            <span className="text-[9px] text-gray-600 italic block mt-1 border-t border-gray-800 pt-1.5">
+              *Epley Formula accuracy peaks between 1 to 10 repetitions.
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
                   {activeTool === 'plate' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🧮 Plate Breakdown!</div>}
                   {activeTool === 'routine' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🧠 AI Workout Builder!</div>}
                 </div>
