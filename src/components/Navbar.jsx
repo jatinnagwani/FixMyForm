@@ -8,6 +8,7 @@ function Navbar({ theme, toggleTheme }) {
   const [toolsOpen, setToolsOpen] = useState(false)
   const [calcWeight, setCalcWeight] = useState('')
   const [calcReps, setCalcReps] = useState('')
+  const [plateWeight, setPlateWeight] = useState('')
   const [activeTool, setActiveTool] = useState(null) // 🧠 Tracks active tool view
   const [showSuggestions, setShowSuggestions] = useState(false)
   const location = useLocation()
@@ -400,7 +401,124 @@ function Navbar({ theme, toggleTheme }) {
     </div>
   </div>
 )}
-                  {activeTool === 'plate' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🧮 Plate Breakdown!</div>}
+                  {activeTool === 'plate' && (() => {
+  // Mechanical plate sorting math engine logic
+  const targetWeight = parseFloat(plateWeight) || 0;
+  const barbellWeight = 20; // Standard Olympic Barbell Weight
+  const remainingWeight = (targetWeight - barbellWeight) / 2;
+  
+  const availablePlates = [20, 15, 10, 5, 2.5];
+  const platesNeeded = [];
+  
+  if (remainingWeight > 0) {
+    let currentRemainder = remainingWeight;
+    availablePlates.forEach(plate => {
+      while (currentRemainder >= plate) {
+        platesNeeded.push(plate);
+        currentRemainder -= plate;
+      }
+    });
+  }
+
+  return (
+    <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
+      {/* Main Title Highlighted with Underline matching 1RM style */}
+      <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
+        <span>🧮</span> Barbell Plate Calculator
+      </h4>
+      
+      <div className="flex flex-col gap-4">
+        {/* Total Target Weight Input */}
+        <div>
+          <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Total Target Weight (KG)</label>
+          <input 
+            type="number" 
+            value={plateWeight} 
+            onChange={(e) => setPlateWeight(e.target.value)}
+            placeholder="e.g., 60 (includes 20KG bar)" 
+            className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+          />
+        </div>
+
+        {/* Dynamic Calculation Render Outputs */}
+        {targetWeight >= 20 ? (
+          <div className="mt-2 p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 rounded-xs flex flex-col gap-3">
+            <div className="text-center border-b border-dashed border-gray-700/20 pb-2">
+              <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">Plates Needed Per Side</span>
+              <span className="text-[9px] text-gray-500 block mt-0.5">(Assuming standard 20 KG Olympic bar)</span>
+            </div>
+            
+            {platesNeeded.length > 0 ? (
+              <div className="flex flex-wrap gap-2 justify-center py-1">
+                {platesNeeded.map((plate, index) => (
+                  <span 
+                    key={index} 
+                    className="text-xs font-black font-nav px-2.5 py-1.5 tracking-wider uppercase bg-[#FF6B35] text-white rounded-xs shadow-sm"
+                  >
+                    {plate} KG
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-xs font-bold text-gray-400 py-1">
+                Just the empty barbell! No extra plates needed.
+              </div>
+            )}
+          </div>
+        ) : plateWeight ? (
+          <div className="mt-2 p-4 border border-dashed border-red-500/30 bg-red-500/5 text-center text-xs text-red-400 font-bold rounded-xs">
+            Minimum weight must be at least 20 KG (the weight of the bar itself).
+          </div>
+        ) : (
+          /* High-Density Space Filler Guide when input is empty */
+          <div className="mt-2 flex flex-col gap-4">
+            <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">
+              Enter target weight to see the plate breakdown for each side.
+            </div>
+
+            {/* Educational Section 1: Standard Plate Color Codes */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
+                🎨 International Plate Specifications
+              </span>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">25 KG Plate</span>
+                <span className="text-red-500 font-bold">Red</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">20 KG Plate</span>
+                <span className="text-blue-500 font-bold">Blue</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">15 KG Plate</span>
+                <span className="text-yellow-500 font-bold">Yellow</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">10 KG Plate</span>
+                <span className="text-green-500 font-bold">Green</span>
+              </div>
+            </div>
+
+            {/* Educational Section 2: Barbell Loading Safety Guide */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+              <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
+                🛡️ Barbell Loading Protocol
+              </span>
+              <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
+                <p>
+                  <strong className="text-gray-300">Always Collar Lock:</strong> Dynamic heavy lifting shifts plates horizontally. Use spring or lock-jaw collars to secure the loaded mechanical sleeve.
+                </p>
+                <p>
+                  <strong className="text-gray-300">Load Progressively:</strong> Load heavy plates internal to the sleeves first, followed by incremental fraction plates towards the edge to balance the moment arm.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+})()}
                   {activeTool === 'routine' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🧠 AI Workout Builder!</div>}
                 </div>
               )}
