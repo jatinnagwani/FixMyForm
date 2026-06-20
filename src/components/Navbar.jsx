@@ -9,6 +9,8 @@ function Navbar({ theme, toggleTheme }) {
   const [calcWeight, setCalcWeight] = useState('')
   const [calcReps, setCalcReps] = useState('')
   const [plateWeight, setPlateWeight] = useState('')
+  const [manualPlates, setManualPlates] = useState([]); // Tracks manual plate clicks
+  const [weightUnit, setWeightUnit] = useState('KG')
   const [activeTool, setActiveTool] = useState(null) // 🧠 Tracks active tool view
   const [showSuggestions, setShowSuggestions] = useState(false)
   const location = useLocation()
@@ -401,120 +403,239 @@ function Navbar({ theme, toggleTheme }) {
     </div>
   </div>
 )}
-                  {activeTool === 'plate' && (() => {
-  // Mechanical plate sorting math engine logic
+{activeTool === 'plate' && (() => {
   const targetWeight = parseFloat(plateWeight) || 0;
-  const barbellWeight = 20; // Standard Olympic Barbell Weight
-  const remainingWeight = (targetWeight - barbellWeight) / 2;
+  const barbellWeight = weightUnit === 'KG' ? 20 : 45; // 20kg or 45lbs standard bar
   
-  const availablePlates = [20, 15, 10, 5, 2.5];
-  const platesNeeded = [];
-  
-  if (remainingWeight > 0) {
-    let currentRemainder = remainingWeight;
+  const availablePlatesKG = [20, 15, 10, 5, 2.5];
+  const availablePlatesLB = [45, 35, 25, 10, 5, 2.5];
+  const availablePlates = weightUnit === 'KG' ? availablePlatesKG : availablePlatesLB;
+
+  // 1. Auto Mode Sorting Math
+  let autoPlates = [];
+  if (targetWeight > barbellWeight) {
+    let currentRemainder = (targetWeight - barbellWeight) / 2;
     availablePlates.forEach(plate => {
       while (currentRemainder >= plate) {
-        platesNeeded.push(plate);
+        autoPlates.push(plate);
         currentRemainder -= plate;
       }
     });
   }
 
+  const activeDisplayPlates = targetWeight > 0 ? autoPlates : manualPlates;
+  const currentTotalWeight = targetWeight > 0 
+    ? targetWeight 
+    : barbellWeight + (manualPlates.reduce((a, b) => a + b, 0) * 2);
+
+  // Dynamic Plate Color Spec Mapping
+  const plateColors = {
+    // KG Plates
+    20: 'bg-blue-600 border-blue-400 text-white',
+    15: 'bg-yellow-500 border-yellow-300 text-black',
+    10: 'bg-green-600 border-green-400 text-white',
+    5: 'bg-red-600 border-red-400 text-white',
+    2.5: 'bg-gray-500 border-gray-400 text-white',
+    // LB Plates Mapping
+    45: 'bg-blue-600 border-blue-400 text-white',
+    35: 'bg-yellow-500 border-yellow-300 text-black',
+    25: 'bg-green-600 border-green-400 text-white',
+  };
+
+  const handlePlateClick = (plate) => {
+    if (targetWeight > 0) setPlateWeight('');
+    setManualPlates([...manualPlates, plate]);
+  };
+
+  // Undo Last Plate Logic
+  const handleUndoPlate = () => {
+    setManualPlates(manualPlates.slice(0, -1));
+  };
+
+  // Unit Toggle Converter Engine
+  const toggleUnit = (unit) => {
+    if (weightUnit === unit) return;
+    setWeightUnit(unit);
+    
+    // Convert current values to new metric system smoothly
+    if (targetWeight > 0) {
+      const converted = unit === 'LB' ? targetWeight * 2.20462 : targetWeight / 2.20462;
+      setPlateWeight(Math.round(converted).toString());
+    } else {
+      setManualPlates([]); // Reset manual plates on conversion to prevent spec mixing
+    }
+  };
+
   return (
     <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
-      {/* Main Title Highlighted with Underline matching 1RM style */}
+      {/* Main Title Highlighted with Bottom Border */}
       <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
         <span>🧮</span> Barbell Plate Calculator
       </h4>
       
       <div className="flex flex-col gap-4">
-        {/* Total Target Weight Input */}
+        {/* METRIC UNIT TOGGLE SWITCH ENGINE */}
+        <div className="flex items-center justify-between bg-[#121212] border border-[#2a2a2a] p-1.5 rounded-xs">
+          <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 pl-1">Target Weight Unit</span>
+          <div className="flex gap-1">
+            <button 
+              onClick={() => toggleUnit('KG')}
+              className={`text-[10px] font-black px-3 py-1 transition-all rounded-xs cursor-pointer ${weightUnit === 'KG' ? 'bg-[#2EC4B6] text-black shadow-xs' : 'text-gray-400 hover:text-white'}`}
+            >
+              KG (Metric)
+            </button>
+            <button 
+              onClick={() => toggleUnit('LB')}
+              className={`text-[10px] font-black px-3 py-1 transition-all rounded-xs cursor-pointer ${weightUnit === 'LB' ? 'bg-[#FF6B35] text-white shadow-xs' : 'text-gray-400 hover:text-white'}`}
+            >
+              LB (Imperial)
+            </button>
+          </div>
+        </div>
+
+        {/* Input Block */}
         <div>
-          <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Total Target Weight (KG)</label>
+          <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">
+            Total Target Weight ({weightUnit})
+          </label>
           <input 
             type="number" 
             value={plateWeight} 
-            onChange={(e) => setPlateWeight(e.target.value)}
-            placeholder="e.g., 60 (includes 20KG bar)" 
+            onChange={(e) => {
+              setPlateWeight(e.target.value);
+              setManualPlates([]);
+            }}
+            placeholder={`e.g., ${weightUnit === 'KG' ? '60' : '135'} (includes ${barbellWeight}${weightUnit} bar)`} 
             className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
           />
         </div>
 
-        {/* Dynamic Calculation Render Outputs */}
-        {targetWeight >= 20 ? (
-          <div className="mt-2 p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 rounded-xs flex flex-col gap-3">
-            <div className="text-center border-b border-dashed border-gray-700/20 pb-2">
-              <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">Plates Needed Per Side</span>
-              <span className="text-[9px] text-gray-500 block mt-0.5">(Assuming standard 20 KG Olympic bar)</span>
-            </div>
-            
-            {platesNeeded.length > 0 ? (
-              <div className="flex flex-wrap gap-2 justify-center py-1">
-                {platesNeeded.map((plate, index) => (
-                  <span 
-                    key={index} 
-                    className="text-xs font-black font-nav px-2.5 py-1.5 tracking-wider uppercase bg-[#FF6B35] text-white rounded-xs shadow-sm"
-                  >
-                    {plate} KG
-                  </span>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center text-xs font-bold text-gray-400 py-1">
-                Just the empty barbell! No extra plates needed.
-              </div>
-            )}
-          </div>
-        ) : plateWeight ? (
-          <div className="mt-2 p-4 border border-dashed border-red-500/30 bg-red-500/5 text-center text-xs text-red-400 font-bold rounded-xs">
-            Minimum weight must be at least 20 KG (the weight of the bar itself).
-          </div>
-        ) : (
-          /* High-Density Space Filler Guide when input is empty */
-          <div className="mt-2 flex flex-col gap-4">
-            <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">
-              Enter target weight to see the plate breakdown for each side.
+        {/* DYNAMIC VISUAL BARBELL GRAPHIC ENGINE */}
+        <div className="my-2 p-4 bg-[#121212] border border-[#2a2a2a] rounded-xs flex flex-col items-center justify-center gap-2 min-h-[120px]">
+          <span className="text-[10px] uppercase font-black tracking-wider text-gray-500">Live Barbell Visualization</span>
+          
+          <div className="w-full flex items-center justify-center relative py-4">
+            {/* Left Sleeve Loaded Plates */}
+            <div className="flex flex-row-reverse gap-0.5 items-center justify-start h-12 w-1/3 pr-1">
+              {activeDisplayPlates.map((plate, idx) => (
+                <div key={`l-${idx}`} className={`w-3 flex items-center justify-center rounded-xs border text-[8px] font-black writing-mode-vertical h-12 ${plateColors[plate] || 'bg-gray-700 text-white border-gray-600'}`}>
+                  {plate}
+                </div>
+              ))}
             </div>
 
-            {/* Educational Section 1: Standard Plate Color Codes */}
+            {/* Core Center Shaft & Sleeves */}
+            <div className="w-2/5 h-2 bg-gray-600 rounded-full relative flex items-center justify-between">
+              <div className="w-2 h-6 bg-gray-400 rounded-xs absolute -left-1"></div>
+              <div className="w-full text-center text-[10px] font-black text-white mix-blend-difference">
+                {currentTotalWeight} {weightUnit}
+              </div>
+              <div className="w-2 h-6 bg-gray-400 rounded-xs absolute -right-1"></div>
+            </div>
+
+            {/* Right Sleeve Loaded Plates */}
+            <div className="flex flex-row gap-0.5 items-center justify-start h-12 w-1/3 pl-1">
+              {activeDisplayPlates.map((plate, idx) => (
+                <div key={`r-${idx}`} className={`w-3 flex items-center justify-center rounded-xs border text-[8px] font-black writing-mode-vertical h-12 ${plateColors[plate] || 'bg-gray-700 text-white border-gray-600'}`}>
+                  {plate}
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* UPGRADED MODULAR CONTROL BUTTON ZONE */}
+          {manualPlates.length > 0 && (
+            <div className="flex gap-4 mt-2">
+              <button 
+                onClick={handleUndoPlate}
+                className="text-[10px] uppercase font-black text-[#2EC4B6] hover:text-[#2EC4B6]/80 tracking-wider cursor-pointer transition-all border border-[#2EC4B6]/20 px-2 py-0.5 rounded-xs"
+              >
+                &larr; Undo Last Plate
+              </button>
+              <button 
+                onClick={() => setManualPlates([])}
+                className="text-[10px] uppercase font-black text-red-400 hover:text-red-300 tracking-wider cursor-pointer transition-all border border-red-500/20 px-2 py-0.5 rounded-xs"
+              >
+                Clear All Plates
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* INTERACTIVE CLICK REPOSITORY ZONE */}
+        <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+          <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
+            💡 Interactive Plate Click Inventory ({weightUnit})
+          </span>
+          <p className="text-[10px] text-gray-400 mb-1">Tap a plate below to manually load it to both sides of the shaft:</p>
+          <div className="flex flex-wrap gap-2 justify-between">
+            {availablePlates.map(plate => (
+              <button
+                key={plate}
+                onClick={() => handlePlateClick(plate)}
+                className={`flex-1 min-w-[50px] p-2 text-center text-xs font-black border rounded-xs transition-all hover:scale-105 active:scale-95 cursor-pointer ${plateColors[plate] || 'bg-gray-800 text-white border-gray-700'}`}
+              >
+                +{plate}{weightUnit.toLowerCase()}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Dynamic Space Filler Check */}
+        {!plateWeight && manualPlates.length === 0 && (
+          <div className="flex flex-col gap-4 mt-1">
+            {/* 🔥 Gyaan Box 1: Standard Barbell Weight Classes */}
             <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
               <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
-                🎨 International Plate Specifications
+                📊 Standard Barbell Weight Specs
               </span>
               <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-                <span className="text-gray-400">25 KG Plate</span>
-                <span className="text-red-500 font-bold">Red</span>
+                <span className="text-gray-400">Olympic Standard Bar</span>
+                <span className="text-gray-300 font-bold">20 KG / 45 LBS</span>
               </div>
               <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-                <span className="text-gray-400">20 KG Plate</span>
-                <span className="text-blue-500 font-bold">Blue</span>
+                <span className="text-gray-400">Women's Olympic Bar</span>
+                <span className="text-gray-300 font-bold">15 KG / 33 LBS</span>
               </div>
               <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-                <span className="text-gray-400">15 KG Plate</span>
-                <span className="text-yellow-500 font-bold">Yellow</span>
-              </div>
-              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-                <span className="text-gray-400">10 KG Plate</span>
-                <span className="text-green-500 font-bold">Green</span>
+                <span className="text-gray-400">Standard Technical Bar</span>
+                <span className="text-gray-300 font-bold">10 KG / 22 LBS</span>
               </div>
             </div>
 
-            {/* Educational Section 2: Barbell Loading Safety Guide */}
+            {/* 🔥 Gyaan Box 2: Warm-up Ramping Guidelines */}
             <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
               <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
-                🛡️ Barbell Loading Protocol
+                🚀 Pyramid Warm-Up Ramping Protocol
               </span>
               <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
-                <p>
-                  <strong className="text-gray-300">Always Collar Lock:</strong> Dynamic heavy lifting shifts plates horizontally. Use spring or lock-jaw collars to secure the loaded mechanical sleeve.
-                </p>
-                <p>
-                  <strong className="text-gray-300">Load Progressively:</strong> Load heavy plates internal to the sleeves first, followed by incremental fraction plates towards the edge to balance the moment arm.
-                </p>
+                <div>
+                  <span className="text-gray-300 font-bold">Set 1 (Activation):</span>
+                  <span className="text-gray-400 block pl-1">Empty Barbell x 10-12 controlled reps to lubricate joints.</span>
+                </div>
+                <div>
+                  <span className="text-gray-300 font-bold">Set 2 (Acclimation):</span>
+                  <span className="text-gray-400 block pl-1">Load 50% of your target weight matrix x 5 smooth reps.</span>
+                </div>
+                <div>
+                  <span className="text-gray-300 font-bold">Set 3 (Neural Prep):</span>
+                  <span className="text-gray-400 block pl-1">Load 80% of your target weight matrix x 1-2 heavy reps before working sets.</span>
+                </div>
               </div>
             </div>
           </div>
         )}
+
+        {/* Standard Loading Protocols */}
+        <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+          <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
+            🛡️ Barbell Loading Protocol
+          </span>
+          <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
+            <p><strong className="text-gray-300">Always Collar Lock:</strong> Dynamic heavy lifting shifts plates horizontally. Use spring collars to secure the loaded mechanical sleeve.</p>
+            <p><strong className="text-gray-300">Load Progressively:</strong> Load heavy plates internal to the sleeves first, followed by incremental fraction plates to balance the moment arm.</p>
+          </div>
+        </div>
       </div>
     </div>
   );
