@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { EXERCISE_REFS } from "../pages/ExerciseData.js"; // 🚀 Connecting metadata structure 
 
 function Navbar({ theme, toggleTheme }) {
@@ -10,11 +10,32 @@ function Navbar({ theme, toggleTheme }) {
   const [calcReps, setCalcReps] = useState('')
   const [plateWeight, setPlateWeight] = useState('')
   const [manualPlates, setManualPlates] = useState([]); // Tracks manual plate clicks
+  const [fatGender, setFatGender] = useState('male')
+  const [fatHeight, setFatHeight] = useState('')
+  const [fatNeck, setFatNeck] = useState('')
+  const [fatWaist, setFatWaist] = useState('')
+  const [fatHip, setFatHip] = useState('') // Required only if gender is female
   const [weightUnit, setWeightUnit] = useState('KG')
   const [activeTool, setActiveTool] = useState(null) // 🧠 Tracks active tool view
   const [showSuggestions, setShowSuggestions] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
+
+
+useEffect(() => {
+  if (toolsOpen) {
+    // Blocks the background page from scrolling
+    document.body.style.overflow = 'hidden';
+  } else {
+    // Restores default scrolling when sidebar is closed
+    document.body.style.overflow = 'unset';
+  }
+
+  // Cleanup to ensure no scroll lock leaks if component unmounts
+  return () => {
+    document.body.style.overflow = 'unset';
+  };
+}, [toolsOpen]);
 
   const isActive = (path) => location.pathname === path
   const isDark = theme === 'dark'
@@ -202,9 +223,9 @@ function Navbar({ theme, toggleTheme }) {
             onClick={() => { setToolsOpen(false); setActiveTool(null); }} 
           />
 
-          {/* Sliding Sidebar Box Container */}
+{/* Sliding Sidebar Box Container */}
           <div 
-            className="fixed right-0 top-0 w-full max-w-md h-full shadow-2xl flex flex-col p-6 border-l border-dashed transition-all duration-300"
+            className="fixed right-0 top-0 w-full max-w-md h-full shadow-2xl flex flex-col p-6 border-l border-dashed transition-all duration-300 overflow-y-auto overscroll-contain"
             style={{ backgroundColor: isDark ? '#0f0f0f' : '#ffffff', borderColor: isDark ? '#2a2a2a' : '#e0e0e0', color: isDark ? '#ffffff' : '#121212' }}
           >
             {/* Header Area */}
@@ -263,7 +284,197 @@ function Navbar({ theme, toggleTheme }) {
                 </div>
               ) : (
                 <div className="font-nav">
-                  {activeTool === 'fat' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">📏 Body Fat Calculation Panel!</div>}
+{activeTool === 'fat' && (() => {
+  const h = parseFloat(fatHeight) || 0;
+  const n = parseFloat(fatNeck) || 0;
+  const w = parseFloat(fatWaist) || 0;
+  const hp = parseFloat(fatHip) || 0;
+  
+  let calculatedBF = null;
+
+  // US Navy Body Fat Formula Execution (Metric Version)
+  if (h > 0 && n > 0 && w > 0) {
+    if (fatGender === 'male' && w > n) {
+      calculatedBF = 495 / (1.0324 - 0.19077 * Math.log10(w - n) + 0.15456 * Math.log10(h)) - 450;
+    } else if (fatGender === 'female' && w + hp > n && hp > 0) {
+      calculatedBF = 495 / (1.29579 - 0.35004 * Math.log10(w + hp - n) + 0.22100 * Math.log10(h)) - 450;
+    }
+    if (calculatedBF && (calculatedBF < 2 || calculatedBF > 50)) calculatedBF = null; // Bound protection
+  }
+
+  // Helper to find physiological fitness category labels
+  const getBFCategory = (bf) => {
+    if (fatGender === 'male') {
+      if (bf < 6) return { label: 'Essential Fat', color: 'text-red-400' };
+      if (bf <= 13) return { label: 'Athletic Spectrum', color: 'text-[#2EC4B6]' };
+      if (bf <= 17) return { label: 'Optimal Fitness', color: 'text-green-400' };
+      if (bf <= 24) return { label: 'Acceptable Average', color: 'text-yellow-400' };
+      return { label: 'Excess Fat / Higher Risk', color: 'text-red-500' };
+    } else {
+      if (bf < 14) return { label: 'Essential Fat', color: 'text-red-400' };
+      if (bf <= 20) return { label: 'Athletic Spectrum', color: 'text-[#2EC4B6]' };
+      if (bf <= 24) return { label: 'Optimal Fitness', color: 'text-green-400' };
+      if (bf <= 31) return { label: 'Acceptable Average', color: 'text-yellow-400' };
+      return { label: 'Excess Fat / Higher Risk', color: 'text-red-500' };
+    }
+  };
+
+  return (
+    <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
+      {/* Main Title Matching the 1RM/Barbell Highlight Style */}
+      <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
+        <span>📏</span> AI Body Fat % Estimator
+      </h4>
+      
+      <div className="flex flex-col gap-3.5">
+        {/* Gender Toggle Selector */}
+        <div className="flex items-center justify-between bg-[#121212] border border-[#2a2a2a] p-1.5 rounded-xs">
+          <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 pl-1">Biological Gender</span>
+          <div className="flex gap-1">
+            <button 
+              onClick={() => setFatGender('male')}
+              className={`text-[10px] font-black px-3 py-1 transition-all rounded-xs cursor-pointer ${fatGender === 'male' ? 'bg-[#2EC4B6] text-black shadow-xs' : 'text-gray-400 hover:text-white'}`}
+            >
+              MALE
+            </button>
+            <button 
+              onClick={() => setFatGender('female')}
+              className={`text-[10px] font-black px-3 py-1 transition-all rounded-xs cursor-pointer ${fatGender === 'female' ? 'bg-[#FF6B35] text-white shadow-xs' : 'text-gray-400 hover:text-white'}`}
+            >
+              FEMALE
+            </button>
+          </div>
+        </div>
+
+        {/* Input Fields Grid Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Height (CM)</label>
+            <input 
+              type="number" value={fatHeight} onChange={(e) => setFatHeight(e.target.value)} placeholder="e.g., 175" 
+              className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+            />
+          </div>
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Neck (CM)</label>
+            <input 
+              type="number" value={fatNeck} onChange={(e) => setFatNeck(e.target.value)} placeholder="e.g., 38" 
+              className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+            />
+          </div>
+          <div className={fatGender === 'male' ? 'col-span-2' : 'col-span-1'}>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Waist (CM)</label>
+            <input 
+              type="number" value={fatWaist} onChange={(e) => setFatWaist(e.target.value)} placeholder="e.g., 84" 
+              className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+            />
+          </div>
+          {fatGender === 'female' && (
+            <div>
+              <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Hips (CM)</label>
+              <input 
+                type="number" value={fatHip} onChange={(e) => setFatHip(e.target.value)} placeholder="e.g., 92" 
+                className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Dynamic Calculation Render Result Box */}
+        {calculatedBF ? (
+          (() => {
+            const category = getBFCategory(calculatedBF);
+            return (
+              <div className="mt-1 p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 text-center rounded-xs flex flex-col gap-1.5">
+                <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">Estimated Body Fat Percentage</span>
+                <span className="text-3xl font-black text-[#FF6B35] tracking-wide">
+                  {calculatedBF.toFixed(1)}%
+                </span>
+                <span className={`text-xs font-black uppercase tracking-wider ${category.color}`}>
+                  Classification: {category.label}
+                </span>
+              </div>
+            );
+          })()
+        ) : (
+          /* 🔥 Ultimate Info Dashboard Layout */
+          <div className="mt-1 flex flex-col gap-4">
+            <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">
+              Enter your physical dimensions above to dynamically solve your current body fat matrix.
+            </div>
+
+            {/* Section 1: Standard Reference Ranges */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
+                📊 Healthy Body Fat Reference Scale
+              </span>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">Athletes Range</span>
+                <span className="text-gray-300 font-bold">6 - 13% (M) | 14 - 20% (F)</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">Fitness Optimal</span>
+                <span className="text-gray-300 font-bold">14 - 17% (M) | 21 - 24% (F)</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">Average Acceptable</span>
+                <span className="text-gray-300 font-bold">18 - 24% (M) | 25 - 31% (F)</span>
+              </div>
+            </div>
+
+            {/* 🔥 NEW Section 2: Jackson & Pollock Age Ideal Targets */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1.5">
+                📈 Age-Based Ideal Fat Matrices (Jackson & Pollock)
+              </span>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">Age 20 - 25 Baseline</span>
+                <span className="text-gray-300 font-bold">~8.5% - 10.5% (M) | ~17.7% - 18.4% (F)</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">Age 30 - 35 Mid-Tier</span>
+                <span className="text-gray-300 font-bold">~12.7% - 13.7% (M) | ~19.3% - 21.5% (F)</span>
+              </div>
+              <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+                <span className="text-gray-400">Age 40 - 45 Mature</span>
+                <span className="text-gray-300 font-bold">~15.3% - 16.4% (M) | ~22.2% - 22.9% (F)</span>
+              </div>
+            </div>
+
+            {/* 🔥 NEW Section 3: Visceral Adipose Risk Assessment */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+              <span className="text-[11px] uppercase font-black text-red-400 tracking-wider block mb-1">
+                ⚠️ Pathological Risks of Excess Storage Fat
+              </span>
+              <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
+                <p>
+                  <strong className="text-gray-300">Visceral Accumulation:</strong> Deep abdominal fat surrounding internal organs disrupts standard endocrine balance, directly provoking insulin resistance.
+                </p>
+                <p>
+                  <strong className="text-gray-300">Cardiovascular Stress:</strong> High composition triggers cytokine proteins, raising low-density lipoprotein (LDL/Bad Cholesterol) while clogging arterial passages.
+                </p>
+              </div>
+            </div>
+
+            {/* Section 4: Safe Measurement Protocol */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">
+                🛡️ Standard Measurement Protocol Cues
+              </span>
+              <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
+                <p><strong className="text-gray-300">Morning Fasted State:</strong> Measure first thing in the morning on an empty stomach to avoid dynamic water/food weight fluctuations.</p>
+                <p><strong className="text-gray-300">Tape Alignment:</strong> Measure your waist horizontally at the navel line, and your neck just below the larynx (Adam's apple) without compressing the skin tissue.</p>
+              </div>
+              <span className="text-[9px] text-gray-600 italic block mt-1 border-t border-gray-800 pt-1.5">
+                *Uses the official mathematical algorithm standard from the US Navy Circumference Method.
+              </span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+})()}
                   {activeTool === 'bmi' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">⚖ BMI Metric Panel!</div>}
                   {activeTool === 'tdee' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🔥 TDEE Energy Multiplier integration zone coming up!</div>}
                   {activeTool === 'tracker' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">💾 History Log!</div>}
