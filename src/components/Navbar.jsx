@@ -21,6 +21,13 @@ function Navbar({ theme, toggleTheme }) {
   const location = useLocation()
   const navigate = useNavigate()
 
+  
+  // 🟢 Ensure these 4 Metabolic States are accurately pasted here:
+  const [metaWeight, setMetaWeight] = useState('')
+  const [metaHeight, setMetaHeight] = useState('')
+  const [metaAge, setMetaAge] = useState('')
+  const [metaActivity, setMetaActivity] = useState('1.2')
+
 
 useEffect(() => {
   if (toolsOpen) {
@@ -475,7 +482,142 @@ useEffect(() => {
     </div>
   );
 })()}
-                  {activeTool === 'bmi' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">⚖ BMI Metric Panel!</div>}
+                  {activeTool === 'bmi' && (() => {
+  const w = parseFloat(metaWeight) || 0;
+  const h = parseFloat(metaHeight) || 0;
+  const age = parseFloat(metaAge) || 0;
+
+  let bmi = null;
+  if (w > 0 && h > 0) bmi = w / ((h / 100) * (h / 100));
+
+  let bmr = null;
+  if (w > 0 && h > 0 && age > 0) bmr = (10 * w) + (6.25 * h) - (5 * age) + 5;
+
+  const bmiPrime = bmi ? bmi / 25 : null;
+
+  const getBMICategory = (val) => {
+    if (val < 16) return { label: 'Severe Thinness', color: 'text-red-500' };
+    if (val < 17) return { label: 'Moderate Thinness', color: 'text-orange-400' };
+    if (val < 18.5) return { label: 'Mild Thinness', color: 'text-blue-400' };
+    if (val <= 25) return { label: 'Optimal Normal Weight', color: 'text-[#2EC4B6]' };
+    if (val <= 30) return { label: 'Overweight Range', color: 'text-yellow-400' };
+    if (val <= 35) return { label: 'Obese Class I', color: 'text-orange-500' };
+    if (val <= 40) return { label: 'Obese Class II', color: 'text-red-400' };
+    return { label: 'Obese Class III (Extreme)', color: 'text-red-600' };
+  };
+
+  return (
+    <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
+      <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
+        <span>⚖️</span> Dynamic BMI & BMR Calc
+      </h4>
+
+      <div className="flex flex-col gap-3.5">
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Weight (KG)</label>
+            <input type="number" value={metaWeight} onChange={(e) => setMetaWeight(e.target.value)} placeholder="70" className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212]'}`} />
+          </div>
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Height (CM)</label>
+            <input type="number" value={metaHeight} onChange={(e) => setMetaHeight(e.target.value)} placeholder="175" className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212]'}`} />
+          </div>
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Age (Years)</label>
+            <input type="number" value={metaAge} onChange={(e) => setMetaAge(e.target.value)} placeholder="22" className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212]'}`} />
+          </div>
+        </div>
+
+        {bmi && bmr ? (
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2 mt-1">
+              <div className="p-3 border border-[#2a2a2a] bg-[#121212]/40 text-center rounded-xs flex flex-col justify-between">
+                <span className="text-[9px] uppercase font-bold text-gray-400 block">Body Mass Index</span>
+                <span className="text-xl font-black text-[#FF6B35] block my-0.5">{bmi.toFixed(1)} <span className="text-[9px] text-gray-500 font-normal">top-shelf</span></span>
+                <span className={`text-[9px] uppercase font-black leading-tight ${getBMICategory(bmi).color}`}>{getBMICategory(bmi).label}</span>
+              </div>
+              <div className="p-3 border border-[#2a2a2a] bg-[#121212]/40 text-center rounded-xs flex flex-col justify-between">
+                <span className="text-[9px] uppercase font-bold text-gray-400 block">Basal Metabolic Rate</span>
+                <span className="text-xl font-black text-[#2EC4B6] block my-0.5">{Math.round(bmr)}</span>
+                <span className="text-[9px] text-gray-500 uppercase font-black block">Kcal / Day Baseline</span>
+              </div>
+            </div>
+
+            {/* 📊 REAL-TIME BMI SPEEDOMETER GAUGE */}
+            {(() => {
+              const minBmi = 15;
+              const maxBmi = 35;
+              let percentage = ((bmi - minBmi) / (maxBmi - minBmi)) * 100;
+              if (percentage < 2) percentage = 2;
+              if (percentage > 98) percentage = 98;
+
+              return (
+                <div className="p-3 border border-[#2a2a2a] bg-[#121212]/60 rounded-xs flex flex-col gap-2">
+                  <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-wider text-gray-400">
+                    <span>⚡ BMI Spectrum Gauge</span>
+                    <span className="text-gray-500">Prime: {bmiPrime?.toFixed(2)}</span>
+                  </div>
+                  <div className="relative w-full h-2.5 rounded-full bg-gradient-to-r from-blue-500 via-[#2EC4B6] via-yellow-400 via-orange-500 to-red-500 mt-1">
+                    <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex flex-col items-center transition-all duration-500 ease-out z-10" style={{ left: `${percentage}%` }}>
+                      <div className="w-0 h-0 border-l-[4px] border-l-transparent border-r-[4px] border-r-transparent border-b-[5px] border-b-white transform rotate-180 -mt-2 mb-0.5"></div>
+                      <div className="w-3.5 h-3.5 rounded-full bg-white border border-black shadow-md flex items-center justify-center">
+                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF6B35]"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex justify-between text-[9px] font-bold text-gray-500 px-0.5">
+                    <span className="text-blue-400">15 (Thin)</span>
+                    <span className="text-[#2EC4B6]">22 (Optimal)</span>
+                    <span className="text-yellow-400">27 (Bulk)</span>
+                    <span className="text-red-500">35+ (Obese)</span>
+                  </div>
+                </div>
+              );
+            })()}
+
+            {/* WHO Exhaustive Reference Table */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5 text-[11px]">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">📊 WHO Weight Breakdown Scale</span>
+              <div className="flex justify-between border-b border-gray-800 pb-1"><span className="text-gray-400">Severe / Moderate Thinness</span><span className="text-red-400 font-bold">&lt; 16.0 – 17.0</span></div>
+              <div className="flex justify-between border-b border-gray-800 pb-1"><span className="text-gray-400">Mild Thinness Baseline</span><span className="text-blue-400 font-bold">17.0 – 18.5</span></div>
+              <div className="flex justify-between border-b border-gray-800 pb-1"><span className="text-gray-400">Normal Weight Target Zone</span><span className="text-[#2EC4B6] font-bold">18.5 – 25.0</span></div>
+              <div className="flex justify-between border-b border-gray-800 pb-1"><span className="text-gray-400">Overweight Corpulence Phase</span><span className="text-yellow-400 font-bold">25.0 – 30.0</span></div>
+              <div className="flex justify-between border-b border-gray-800 pb-1"><span className="text-gray-400">Obese Class I / II / III Matrix</span><span className="text-red-500 font-bold">30.0 to &ge; 40.0</span></div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-1 flex flex-col gap-4">
+            <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">Enter stats above to isolate baseline body mass index and rest metabolism.</div>
+            
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">🧬 Muscle Mass & BMR Hypertrophy</span>
+              <p className="text-[11px] text-gray-400 leading-relaxed"><strong className="text-gray-300">Anaerobic Weight Lifting:</strong> Building dense skeletal muscle mass scales up resting energy consumption because active tissue demands continuous upkeep calories even when completely idle.</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed"><strong className="text-gray-300">The Diet Starvation Trap:</strong> Severe food restriction can force your body's rest metabolism to drop by up to 30%, sacrificing physical energy and brain function.</p>
+            </div>
+
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-0.5">📐 Advanced Metric: The Ponderal Index (PI)</span>
+              <p className="text-[11px] text-gray-400 leading-relaxed">Unlike BMI which squares your height, the <strong className="text-gray-300">Ponderal Index cubes it ($mass/height^3$)</strong>. This mathematical adjustment yields significantly more reliable leanness data for extremely tall or short lifters.</p>
+            </div>
+
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-0.5">👦 CDC Youth Percentiles (Ages 2-20)</span>
+              <p className="text-[11px] text-gray-400 leading-relaxed">For teenagers and children, raw BMI numbers don't work. The CDC maps weight tracking based on growth percentiles: <strong className="text-blue-400">&lt;5% is Underweight</strong>, <strong className="text-[#2EC4B6]">5%-85% is Healthy</strong>, and <strong className="text-red-400">&gt;95% is classified as Overweight</strong>.</p>
+            </div>
+
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+              <span className="text-[11px] uppercase font-black text-red-400 tracking-wider block mb-1">⚠️ Extreme Deviation Pathology Risks</span>
+              <p className="text-[11px] text-gray-400 leading-relaxed"><strong className="text-gray-300">Overweight Extent:</strong> Elevates systemic blood pressure, type-II insulin complications, and chronic joint degradation (Osteoarthritis).</p>
+              <p className="text-[11px] text-gray-400 leading-relaxed"><strong className="text-gray-300">Underweight Extent:</strong> Triggers vitamin deficiencies, high anemia stress, bone tissue weakness (Osteoporosis), and degraded recovery response.</p>
+            </div>
+
+            <div className="p-2 bg-[#121212] border border-gray-800 rounded-xs text-[10px] text-gray-500 leading-normal italic">*Efficacy Note: BMI is an overall mass calculator that cannot distinguish muscle from visceral fat. Muscular bodybuilders may map as "Overweight" despite elite conditioning.</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+})()}
                   {activeTool === 'tdee' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🔥 TDEE Energy Multiplier integration zone coming up!</div>}
                   {activeTool === 'tracker' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">💾 History Log!</div>}
                   {activeTool === 'radar' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🎯 Analytics Chart!</div>}
