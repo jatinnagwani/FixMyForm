@@ -21,6 +21,12 @@ function Navbar({ theme, toggleTheme }) {
   const location = useLocation()
   const navigate = useNavigate()
 
+const [trackerLogs, setTrackerLogs] = useState([]);
+
+
+const [inputLogExercise, setInputLogExercise] = useState('');
+const [inputLogScore, setInputLogScore] = useState('');
+const [inputLogIssue, setInputLogIssue] = useState('');
   
   // 🟢 Ensure these 4 Metabolic States are accurately pasted here:
   const [metaWeight, setMetaWeight] = useState('')
@@ -261,7 +267,7 @@ useEffect(() => {
                     <span>📏 AI Body Fat % Estimator</span> <span className="text-xs text-gray-500 group-hover:text-[#2EC4B6]">→</span>
                   </button>
                   <button onClick={() => setActiveTool('bmi')} className={`w-full text-left p-4 border transition-all text-sm font-bold flex items-center justify-between group cursor-pointer ${isDark ? 'bg-[#161616] border-[#2a2a2a] hover:border-[#2EC4B6]' : 'bg-gray-50 border-[#e0e0e0] hover:border-[#2EC4B6]'}`}>
-                    <span>⚖ Dynamic BMI & BMR Calc</span> <span className="text-xs text-gray-500 group-hover:text-[#2EC4B6]">→</span>
+                    <span>⚖ Dynamic BMI & BMR Calculator</span> <span className="text-xs text-gray-500 group-hover:text-[#2EC4B6]">→</span>
                   </button>
                   {/* 🔥 NEW TDEE BUTTON ADDED */}
                   <button onClick={() => setActiveTool('tdee')} className={`w-full text-left p-4 border transition-all text-sm font-bold flex items-center justify-between group cursor-pointer ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white hover:border-[#2EC4B6]' : 'bg-gray-50 border-[#e0e0e0] text-[#121212] hover:border-[#2EC4B6]'}`}>
@@ -509,7 +515,7 @@ useEffect(() => {
   return (
     <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
       <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
-        <span>⚖️</span> Dynamic BMI & BMR Calc
+        <span>⚖️</span> Dynamic BMI & BMR Calculator
       </h4>
 
       <div className="flex flex-col gap-3.5">
@@ -618,8 +624,291 @@ useEffect(() => {
     </div>
   );
 })()}
-                  {activeTool === 'tdee' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🔥 TDEE Energy Multiplier integration zone coming up!</div>}
-                  {activeTool === 'tracker' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">💾 History Log!</div>}
+                  {/* 2. 🔥 THE ULTIMATE SPECIALIZED SHOWSTOPPER TDEE CALCULATOR */}
+{activeTool === 'tdee' && (() => {
+  // Strict text state capture checking
+  const w = parseFloat(metaWeight);
+  const h = parseFloat(metaHeight);
+  const age = parseFloat(metaAge);
+  const activity = parseFloat(metaActivity) || 1.2;
+
+  // Strict structural evaluation activation parameter
+  // User ne jab tak manually type nahi kiya, hasInputs explicitly FALSE rahega
+  const hasInputs = metaWeight && metaHeight && metaAge && !isNaN(w) && !isNaN(h) && !isNaN(age);
+
+  let bmr = null;
+  if (hasInputs) {
+    const isMale = fatGender === 'male'; 
+    bmr = (10 * w) + (6.25 * h) - (5 * age) + (isMale ? 5 : -161);
+  }
+  const tdee = bmr ? bmr * activity : 0; // Fallback directly to 0 if no explicit active input strings found
+
+  const isMale = fatGender === 'male';
+  const activeColor = isMale ? '#FF6B35' : '#00F5D4';
+  const focusClass = isMale ? 'focus:border-[#FF6B35]' : 'focus:border-[#00F5D4]';
+
+  return (
+    <div className="p-4 border bg-[#0d0d0d]/90 rounded-sm font-nav text-sm relative overflow-hidden transition-all duration-300" style={{ borderColor: `${activeColor}40`, boxShadow: `0 0 40px ${activeColor}08` }}>
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,107,53,0.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,107,53,0.01)_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none" style={{ backgroundImage: `linear-gradient(${activeColor}05 1px, transparent 1px), linear-gradient(90deg, ${activeColor}05 1px, transparent 1px)` }} />
+
+      <h4 className="text-sm font-black uppercase tracking-wider pb-2 border-b-2 border-gray-800/80 mb-4 flex items-center justify-between relative z-10">
+        <div className="flex items-center gap-1.5 font-ops">
+
+          <span className="text-[#00F5D4]">🔥 Total Daily Energy (TDEE) Calculator</span>
+        </div>
+        <span className="flex h-2 w-2 relative">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: activeColor }}></span>
+          <span className="relative inline-flex rounded-full h-2 w-2" style={{ backgroundColor: activeColor }}></span>
+        </span>
+      </h4>
+      
+      <div className="flex flex-col gap-4 relative z-10">
+        {/* Gender Multiplier Profile Toggle */}
+        <div className="flex items-center justify-between bg-[#121212] border border-[#2a2a2a] p-1.5 rounded-xs">
+          <span className="text-[9px] uppercase font-black tracking-widest text-gray-400 pl-1">Metabolic Multiplier Profile</span>
+          <div className="flex gap-1">
+            <button 
+              onClick={() => setFatGender('male')}
+              className={`text-[9px] font-black px-3 py-1 transition-all rounded-xs cursor-pointer ${isMale ? 'bg-[#FF6B35] text-black shadow-xs' : 'text-gray-500 hover:text-white'}`}
+            >
+              MALE (+5)
+            </button>
+            <button 
+              onClick={() => setFatGender('female')}
+              className={`text-[9px] font-black px-3 py-1 transition-all rounded-xs cursor-pointer ${!isMale ? 'bg-[#00F5D4] text-black shadow-xs' : 'text-gray-500 hover:text-white'}`}
+            >
+              FEMALE (-161)
+            </button>
+          </div>
+        </div>
+
+        {/* Core Dimensions Arrays */}
+        <div className="grid grid-cols-3 gap-2">
+          <div>
+            <label className="text-[9px] uppercase font-black text-gray-400 block mb-1 tracking-widest">Weight (KG)</label>
+            <input 
+              type="number" value={metaWeight} onChange={(e) => setMetaWeight(e.target.value)} placeholder="e.g., 70" 
+              className={`w-full p-2.5 border text-xs font-bold focus:outline-none transition-all rounded-xs bg-[#121212] border-[#2a2a2a] text-white placeholder-gray-700 ${focusClass}`} 
+            />
+          </div>
+          <div>
+            <label className="text-[9px] uppercase font-black text-gray-400 block mb-1 tracking-widest">Height (CM)</label>
+            <input 
+              type="number" value={metaHeight} onChange={(e) => setMetaHeight(e.target.value)} placeholder="e.g., 175" 
+              className={`w-full p-2.5 border text-xs font-bold focus:outline-none transition-all rounded-xs bg-[#121212] border-[#2a2a2a] text-white placeholder-gray-700 ${focusClass}`} 
+            />
+          </div>
+          <div>
+            <label className="text-[9px] uppercase font-black text-gray-400 block mb-1 tracking-widest">Age (Yrs)</label>
+            <input 
+              type="number" value={metaAge} onChange={(e) => setMetaAge(e.target.value)} placeholder="e.g., 22" 
+              className={`w-full p-2.5 border text-xs font-bold focus:outline-none transition-all rounded-xs bg-[#121212] border-[#2a2a2a] text-white placeholder-gray-700 ${focusClass}`} 
+            />
+          </div>
+        </div>
+
+        {/* Activity Selection Matrix */}
+        <div>
+          <label className="text-[9px] uppercase font-black text-gray-400 block mb-1 tracking-widest">Activity Matrix Multiplier</label>
+          <select 
+            value={metaActivity} onChange={(e) => setMetaActivity(e.target.value)} 
+            className={`w-full p-2.5 border text-xs font-bold focus:outline-none bg-[#121212] border-[#2a2a2a] text-white rounded-xs cursor-pointer transition-colors ${focusClass}`}
+          >
+            <option value="1.2">Sedentary (Zero Purposeful Gym / Desk Job)</option>
+            <option value="1.375">Light Activity (Casual Training 1-3 Days/Week)</option>
+            <option value="1.55">Moderate Activity (Intense Lifting 3-5 Days/Week)</option>
+            <option value="1.725">Heavy Athlete (Vicious Compound Lifting 6-7 Days/Week)</option>
+          </select>
+        </div>
+
+        {/* 🎬 DYNAMIC SWITCH FOR OUTPUT OR INFORMATION LOG PANEL */}
+        {hasInputs ? (
+          <div className="flex flex-col gap-3.5 mt-1 animate-fadeIn">
+            {/* Dual Glow Dynamic Cyber Card Box */}
+            <div className="p-4 border-y border-dashed bg-gradient-to-br from-[#FF6B35]/5 via-transparent to-[#00F5D4]/5 text-center rounded-sm relative transition-all" style={{ borderLeft: `4px solid ${isMale ? '#FF6B35' : '#00F5D4'}`, borderRight: `4px solid ${isMale ? '#00F5D4' : '#FF6B35'}` }}>
+              <span className="text-[9px] uppercase font-black tracking-widest text-gray-400 block">TOTAL DAILY ENERGY EXPENDITURE</span>
+              <span className="text-3xl font-black text-white tracking-wide my-1.5 block">
+                {Math.round(tdee)} <span className="text-xs font-black px-1.5 py-0.5 text-black rounded-xs tracking-normal" style={{ background: `linear-gradient(90deg, #FF6B35, #00F5D4)` }}>KCAL/DAY</span>
+              </span>
+              <div className="text-[10px] text-gray-500 font-bold border-t border-gray-800/80 pt-2 flex justify-center gap-4">
+                <span>BMR Base: <strong style={{ color: isMale ? '#00F5D4' : '#FF6B35' }}>{Math.round(bmr)}</strong></span>
+                <span className="text-gray-700">|</span>
+                <span>Active Multiplier: <strong style={{ color: isMale ? '#FF6B35' : '#00F5D4' }}>x{activity}</strong></span>
+              </div>
+            </div>
+
+            {/* Target Strategy Adaptation Panels */}
+            <div className="flex flex-col gap-2">
+              <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider block mb-0.5">🎯 Target Strategy Adaptations</span>
+              <div className="p-3 border border-[#2a2a2a] bg-gradient-to-r from-[#00F5D4]/5 to-transparent rounded-xs flex items-center justify-between border-l-2 border-l-[#00F5D4] hover:bg-black/40 transition-all group">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-black text-white uppercase group-hover:text-[#00F5D4] transition-colors">Clean Muscle Bulk (+15%)</span>
+                  <span className="text-[9px] text-gray-500 leading-none">Controlled energy surplus optimized for direct protein synthesis.</span>
+                </div>
+                <div className="text-right shrink-0 pl-2">
+                  <span className="text-base font-black text-[#00F5D4] tracking-wide block">{Math.round(tdee + 300)}</span>
+                  <span className="text-[8px] uppercase text-gray-600 font-bold block">Kcal / Day</span>
+                </div>
+              </div>
+
+              <div className="p-3 border border-[#2a2a2a] bg-gradient-to-r from-[#FF6B35]/5 to-transparent rounded-xs flex items-center justify-between border-l-2 border-l-[#FF6B35] hover:bg-black/40 transition-all group">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-xs font-black text-white uppercase group-hover:text-[#FF6B35] transition-colors">Aggressive Fat Cut (-500)</span>
+                  <span className="text-[9px] text-gray-500 leading-none">Forcing adipose tissue utilization via systemic calorie deficit.</span>
+                </div>
+                <div className="text-right shrink-0 pl-2">
+                  <span className="text-base font-black text-[#FF6B35] tracking-wide block">{Math.round(tdee - 500)}</span>
+                  <span className="text-[8px] uppercase text-gray-600 font-bold block">Kcal / Day</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Metabolism Allocation Section */}
+            <div className="border border-[#2a2a2a] bg-[#121212]/60 rounded-xs p-3 flex flex-col gap-2.5">
+              <span className="text-[10px] uppercase font-black text-gray-400 tracking-wider block border-b border-gray-800/80 pb-1.5">📊 Metabolism Allocation Metrics</span>
+              <div className="flex flex-col gap-2">
+                <div>
+                  <div className="flex justify-between text-[11px] font-bold text-gray-400 mb-0.5">
+                    <span>Basal Metabolism (Organ Upkeep)</span>
+                    <span className="text-[#00F5D4]">~70%</span>
+                  </div>
+                  <div className="w-full h-1 bg-gray-800 rounded-full"><div className="w-[70%] h-full bg-[#00F5D4]" /></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[11px] font-bold text-gray-400 mb-0.5">
+                    <span>Workout Output & Motion</span>
+                    <span className="text-[#FF6B35]">~20%</span>
+                  </div>
+                  <div className="w-full h-1 bg-gray-800 rounded-full"><div className="w-[20%] h-full bg-[#FF6B35]" /></div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[11px] font-bold text-gray-400 mb-0.5">
+                    <span>Thermic Effect of Digestion (TEF)</span>
+                    <span className="text-yellow-500">~10%</span>
+                  </div>
+                  <div className="w-full h-1 bg-gray-800 rounded-full"><div className="w-[10%] h-full bg-yellow-500" /></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Empty Space High-Density Info Layout Panels (Triggers when empty) */
+          <div className="mt-1 flex flex-col gap-3.5 animate-fadeIn">
+            <div className="p-3 border border-dashed border-gray-800 bg-black/10 text-center text-xs text-gray-500 rounded-xs font-medium">
+              Enter specifications matrix above to compute your precise active metabolic profile.
+            </div>
+
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
+                🚀 The First Law of Thermodynamics
+              </span>
+              <div className="flex flex-col gap-2 text-[11px] text-gray-400 leading-relaxed">
+                <p>
+                  <strong className="text-gray-300">Energy Balance Matrix:</strong> TDEE is an active calculation of your biological daily energy cost. Consuming calories above this line forces a weight surplus, while dropping below it creates fat oxidation.
+                </p>
+                <p>
+                  <strong className="text-gray-300">The 26% Variance Clause:</strong> Modern 2005 medical meta-analyses confirm that due to unseen genetic variables, even the most perfect formulas possess an implicit variance window between tracking lines.
+                </p>
+              </div>
+            </div>
+
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">
+                📝 The Modern Progression Protocol
+              </span>
+              <p className="text-[11px] text-gray-400 leading-relaxed">
+                Since all digital math options are statistical estimates, the ultimate bodybuilding progression method is maintaining an exact daily log of food ingestion weights combined with strength tracking metrics over 2-3 week testing cycles.
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+})()}
+                  {/* 💾 MODULAR FORM SCORE TRACKER PANEL */}
+{activeTool === 'tracker' && (() => {
+  const handleAddLog = (e) => {
+    e.preventDefault();
+    if (!inputLogExercise || !inputLogScore) return;
+    
+    const newLog = {
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      exercise: inputLogExercise,
+      score: Math.min(100, Math.max(0, parseInt(inputLogScore) || 0)),
+      issue: inputLogIssue || 'Form optimized / Clear rep profile'
+    };
+    
+    setTrackerLogs([newLog, ...trackerLogs]);
+    setInputLogExercise('');
+    setInputLogScore('');
+    setInputLogIssue('');
+  };
+
+  return (
+    <div className="p-4 border border-red-500/30 bg-[#0d0d0d]/90 rounded-sm font-nav text-sm relative overflow-hidden shadow-[0_0_30px_rgba(239,68,68,0.05)]">
+      <h4 className="text-sm font-black text-red-500 uppercase tracking-wider pb-2 border-b-2 border-red-500/20 mb-4 flex items-center gap-1.5 font-ops">
+        <span>💾</span> Tactical Form Score Tracker
+      </h4>
+
+      {/* Interactive Telemetry Log Submission Form */}
+      <form onSubmit={handleAddLog} className="flex flex-col gap-3 bg-[#121212] border border-[#2a2a2a] p-3 rounded-xs mb-4">
+        <span className="text-[10px] uppercase font-black tracking-widest text-gray-400 block mb-0.5">Log Fresh Form Telemetry</span>
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[9px] uppercase font-bold text-gray-500 block mb-1">Exercise Name</label>
+            <input 
+              type="text" value={inputLogExercise} onChange={(e) => setInputLogExercise(e.target.value)} placeholder="e.g., Barbell Squat" 
+              className="w-full p-2 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
+            />
+          </div>
+          <div>
+            <label className="text-[9px] uppercase font-bold text-gray-500 block mb-1">AI Score %</label>
+            <input 
+              type="number" value={inputLogScore} onChange={(e) => setInputLogScore(e.target.value)} placeholder="e.g., 90" 
+              className="w-full p-2 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
+            />
+          </div>
+        </div>
+        <div>
+          <label className="text-[9px] uppercase font-bold text-gray-500 block mb-1">AI Critical Dev Notes / Flaws</label>
+          <input 
+            type="text" value={inputLogIssue} onChange={(e) => setInputLogIssue(e.target.value)} placeholder="e.g., Hip shift / Excessive knee forward" 
+            className="w-full p-2 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
+          />
+        </div>
+        <button type="submit" className="w-full py-2 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all rounded-xs active:scale-[0.98] mt-1 cursor-pointer">
+          DEPLOY REPOSIT_ METRIC
+        </button>
+      </form>
+
+      {/* Dynamic Render Loop for Saved Data Database */}
+      <div className="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
+        <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 block">Historical Tracking Sequence</span>
+        
+        {trackerLogs.length === 0 ? (
+          <div className="p-4 border border-dashed border-gray-800 text-center text-xs text-gray-500 italic">No telemetry logged yet. Scan and check your form to initialize tracking sequence.</div>
+        ) : (
+          trackerLogs.map(log => (
+            <div key={log.id} className="p-2.5 border border-gray-800/80 bg-black/40 rounded-xs flex flex-col gap-1.5">
+              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
+                <span className="text-white font-black text-xs uppercase">{log.exercise}</span>
+                <span className="text-[9px] text-gray-600 font-bold">{log.date}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[11px] text-gray-400 leading-normal max-w-[80%] italic">"{log.issue}"</span>
+                <span className={`text-sm font-black ${log.score >= 80 ? 'text-[#2EC4B6]' : log.score >= 65 ? 'text-yellow-400' : 'text-red-500'}`}>
+                  {log.score}%
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+})()}
                   {activeTool === 'radar' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🎯 Analytics Chart!</div>}
                   {activeTool === '1rm' && (
   <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
