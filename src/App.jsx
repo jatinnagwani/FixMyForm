@@ -4,6 +4,7 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Explore from './pages/Explore'
 import FormCheck from './pages/FormCheck'
+import Swapper from './pages/Swapper' // 🧠 Imported the new Swapper page
 
 function App() {
   const [theme, setTheme] = useState('dark')
@@ -20,10 +21,11 @@ function App() {
   return (
     <BrowserRouter>
       <Navbar theme={theme} toggleTheme={toggleTheme} />
-      <Routes>
+<Routes>
         <Route path="/" element={<Home theme={theme} />} />
         <Route path="/explore" element={<Explore theme={theme} />} />
         <Route path="/form-check" element={<FormCheck theme={theme} />} />
+        <Route path="/swapper" element={<Swapper theme={theme} />} />
       </Routes>
     </BrowserRouter>
   )

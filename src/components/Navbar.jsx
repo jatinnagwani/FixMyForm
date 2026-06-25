@@ -21,18 +21,43 @@ function Navbar({ theme, toggleTheme }) {
   const location = useLocation()
   const navigate = useNavigate()
 
-const [trackerLogs, setTrackerLogs] = useState([]);
+// 💾 NEW: Core Telemetry Compartment States (Initialized 100% empty)
+  const [trackerLogs, setTrackerLogs] = useState([]);
+  const [selectedLogExercise, setSelectedLogExercise] = useState('Barbell Squat');
+  const [inputLogScore, setInputLogScore] = useState('');
+  const [inputLogIssue, setInputLogIssue] = useState('');
+  const [activeHistoryModal, setActiveHistoryModal] = useState(null); // 📌 Tracks clicked exercise for modal popup
+  const [inputLogExercise, setInputLogExercise] = useState('');
 
-
-const [inputLogExercise, setInputLogExercise] = useState('');
-const [inputLogScore, setInputLogScore] = useState('');
-const [inputLogIssue, setInputLogIssue] = useState('');
-  
   // 🟢 Ensure these 4 Metabolic States are accurately pasted here:
   const [metaWeight, setMetaWeight] = useState('')
   const [metaHeight, setMetaHeight] = useState('')
   const [metaAge, setMetaAge] = useState('')
   const [metaActivity, setMetaActivity] = useState('1.2')
+
+  // ==========================================
+  // 💾 CORE FORM TRACKER LOGICAL ENGINES
+  // ==========================================
+  const handleAddLog = (e) => {
+    e.preventDefault();
+    if (!selectedLogExercise || !inputLogScore) return;
+    
+    const newLog = {
+      id: Date.now(),
+      date: new Date().toISOString().split('T')[0],
+      exercise: selectedLogExercise,
+      score: Math.min(100, Math.max(0, parseInt(inputLogScore) || 0)),
+      issue: inputLogIssue.trim() || 'Form optimized / Clear rep profile'
+    };
+    
+    setTrackerLogs([newLog, ...trackerLogs]);
+    setInputLogScore('');
+    setInputLogIssue('');
+  };
+
+  const handleDeleteRecord = (id) => {
+    setTrackerLogs(trackerLogs.filter(log => log.id !== id));
+  };
 
 
 useEffect(() => {
@@ -114,6 +139,11 @@ useEffect(() => {
             <Link to="/form-check"
               className={`text-xs lg:text-sm font-nav font-semibold tracking-[0.15em] uppercase transition-colors ${isActive('/form-check') ? 'text-[#FF6B35]' : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#121212]'}`}>
               Form Check
+            </Link>
+            {/* 🧠 SMART SWAPPER ENGINE ACTIVE LINK */}
+            <Link to="/swapper"
+              className={`text-xs lg:text-sm font-nav font-semibold tracking-[0.15em] uppercase transition-colors ${isActive('/swapper') ? 'text-[#FF6B35]' : isDark ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-[#121212]'}`}>
+              Swapper
             </Link>
             
             {/* 🔍 Desktop Search Box with Dropdown Menu */}
@@ -826,225 +856,227 @@ useEffect(() => {
     </div>
   );
 })()}
-                  {/* 💾 MODULAR FORM SCORE TRACKER PANEL */}
+{/* 💾 HIGH-DENSITY INTERACTIVE COMPARTMENTALIZED FORM TRACKER */}
 {activeTool === 'tracker' && (() => {
-  const handleAddLog = (e) => {
-    e.preventDefault();
-    if (!inputLogExercise || !inputLogScore) return;
-    
-    const newLog = {
-      id: Date.now(),
-      date: new Date().toISOString().split('T')[0],
-      exercise: inputLogExercise,
-      score: Math.min(100, Math.max(0, parseInt(inputLogScore) || 0)),
-      issue: inputLogIssue || 'Form optimized / Clear rep profile'
-    };
-    
-    setTrackerLogs([newLog, ...trackerLogs]);
-    setInputLogExercise('');
-    setInputLogScore('');
-    setInputLogIssue('');
+  // Group logs by exercise dynamically for compartment routing
+  const compartmentalizedGroups = trackerLogs.reduce((acc, log) => {
+    if (!acc[log.exercise]) acc[log.exercise] = [];
+    acc[log.exercise].push(log);
+    return acc;
+  }, {});
+
+// 🎨 Dynamic Muscle-Group Based Color Matrix Generation with Adaptive Glow Specs
+  const getExerciseTheme = (name, avgScore) => {
+    const exerciseData = EXERCISE_REFS[name] || {};
+    const muscleGroup = exerciseData.muscle ? exerciseData.muscle.toLowerCase() : '';
+
+    // Status Glow Strategy based on actual average metrics performance
+    const glowClass = avgScore >= 80 
+      ? 'shadow-[0_0_15px_rgba(0,245,212,0.06)] border-[#00F5D4]/20' 
+      : 'shadow-[0_0_15px_rgba(239,68,68,0.06)] border-red-500/20';
+
+    if (muscleGroup.includes('chest') || muscleGroup.includes('pectoral')) {
+      return { border: 'border-l-4 border-l-red-500', text: 'text-red-400', bg: 'from-red-950/10', glow: glowClass };
+    }
+    if (muscleGroup.includes('back') || muscleGroup.includes('lats') || muscleGroup.includes('traps') || muscleGroup.includes('pull')) {
+      return { border: 'border-l-4 border-l-blue-500', text: 'text-blue-400', bg: 'from-blue-950/10', glow: glowClass };
+    }
+    if (muscleGroup.includes('quads') || muscleGroup.includes('hamstrings') || muscleGroup.includes('glutes') || muscleGroup.includes('legs') || muscleGroup.includes('calves')) {
+      return { border: 'border-l-4 border-l-green-500', text: 'text-green-400', bg: 'from-green-950/10', glow: glowClass };
+    }
+    if (muscleGroup.includes('shoulder') || muscleGroup.includes('deltoid')) {
+      return { border: 'border-l-4 border-l-purple-500', text: 'text-purple-400', bg: 'from-purple-950/10', glow: glowClass };
+    }
+    if (muscleGroup.includes('biceps') || muscleGroup.includes('triceps') || muscleGroup.includes('arms')) {
+      return { border: 'border-l-4 border-l-cyan-500', text: 'text-cyan-400', bg: 'from-cyan-950/10', glow: glowClass };
+    }
+    if (muscleGroup.includes('abs') || muscleGroup.includes('core')) {
+      return { border: 'border-l-4 border-l-yellow-500', text: 'text-yellow-400', bg: 'from-yellow-950/10', glow: glowClass };
+    }
+    return { border: 'border-l-4 border-l-orange-500', text: 'text-orange-400', bg: 'from-orange-950/10', glow: glowClass };
   };
 
   return (
-    <div className="p-4 border border-red-500/30 bg-[#0d0d0d]/90 rounded-sm font-nav text-sm relative overflow-hidden shadow-[0_0_30px_rgba(239,68,68,0.05)]">
-      <h4 className="text-sm font-black text-red-500 uppercase tracking-wider pb-2 border-b-2 border-red-500/20 mb-4 flex items-center gap-1.5 font-ops">
+    <div className="p-4 border border-red-500/40 bg-[#0d0d0d]/95 rounded-sm font-nav text-sm relative overflow-visible h-auto min-h-max shadow-[0_0_30px_rgba(239,68,68,0.08)] animate-fadeIn pb-6">
+      {/* Tech Mesh Overlay */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(239,68,68,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(239,68,68,0.015)_1px,transparent_1px)] bg-[size:14px_14px] pointer-events-none" />
+
+      <h4 className="text-sm font-black text-red-500 uppercase tracking-wider pb-2 border-b-2 border-red-500/30 mb-4 flex items-center gap-1.5 font-ops relative z-10">
         <span>💾</span> Tactical Form Score Tracker
       </h4>
 
-      {/* Interactive Telemetry Log Submission Form */}
-      <form onSubmit={handleAddLog} className="flex flex-col gap-3 bg-[#121212] border border-[#2a2a2a] p-3 rounded-xs mb-4">
-        <span className="text-[10px] uppercase font-black tracking-widest text-gray-400 block mb-0.5">Log Fresh Form Telemetry</span>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="text-[9px] uppercase font-bold text-gray-500 block mb-1">Exercise Name</label>
-            <input 
-              type="text" value={inputLogExercise} onChange={(e) => setInputLogExercise(e.target.value)} placeholder="e.g., Barbell Squat" 
-              className="w-full p-2 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
-            />
+      {/* Input Form Module */}
+      <form onSubmit={handleAddLog} className="flex flex-col gap-3 bg-[#121212] border-l-2 border-l-red-500 border-y-[#2a2a2a] border-r-[#2a2a2a] border p-3 rounded-xs mb-5 relative z-10 shadow-md">
+        <span className="text-[10px] uppercase font-black tracking-widest text-red-400 block mb-0.5">Log Fresh Form Telemetry</span>
+        
+        <div className="grid grid-cols-3 gap-2">
+          {/* DYNAMIC DROPDOWN LOADER */}
+          <div className="col-span-2">
+            <label className="text-[9px] uppercase font-black text-gray-400 block mb-1">Select Exercise Target</label>
+            <select
+              value={selectedLogExercise}
+              onChange={(e) => setSelectedLogExercise(e.target.value)}
+              className="w-full p-2.5 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs cursor-pointer transition-colors"
+            >
+              {Object.keys(EXERCISE_REFS).sort().map(name => (
+                <option key={name} value={name}>{name}</option>
+              ))}
+            </select>
           </div>
+
           <div>
-            <label className="text-[9px] uppercase font-bold text-gray-500 block mb-1">AI Score %</label>
+            <label className="text-[9px] uppercase font-black text-gray-400 block mb-1">AI Score %</label>
             <input 
-              type="number" value={inputLogScore} onChange={(e) => setInputLogScore(e.target.value)} placeholder="e.g., 90" 
-              className="w-full p-2 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
+              type="number" value={inputLogScore} onChange={(e) => setInputLogScore(e.target.value)} placeholder="90" 
+              className="w-full p-2.5 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
             />
           </div>
         </div>
+
         <div>
-          <label className="text-[9px] uppercase font-bold text-gray-500 block mb-1">AI Critical Dev Notes / Flaws</label>
+          <label className="text-[9px] uppercase font-black text-gray-400 block mb-1">AI Critical Dev Notes / Flaws</label>
           <input 
-            type="text" value={inputLogIssue} onChange={(e) => setInputLogIssue(e.target.value)} placeholder="e.g., Hip shift / Excessive knee forward" 
-            className="w-full p-2 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
+            type="text" value={inputLogIssue} onChange={(e) => setInputLogIssue(e.target.value)} placeholder="e.g., Spine flexion rounding" 
+            className="w-full p-2.5 bg-[#161616] border border-[#2a2a2a] text-xs font-bold text-white focus:outline-none focus:border-red-500 rounded-xs"
           />
         </div>
-        <button type="submit" className="w-full py-2 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all rounded-xs active:scale-[0.98] mt-1 cursor-pointer">
+
+        <button type="submit" className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-widest transition-all rounded-xs cursor-pointer shadow-md">
           DEPLOY REPOSIT_ METRIC
         </button>
       </form>
 
-      {/* Dynamic Render Loop for Saved Data Database */}
-      <div className="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
-        <span className="text-[10px] uppercase font-black tracking-wider text-gray-500 block">Historical Tracking Sequence</span>
-        
-        {trackerLogs.length === 0 ? (
-          <div className="p-4 border border-dashed border-gray-800 text-center text-xs text-gray-500 italic">No telemetry logged yet. Scan and check your form to initialize tracking sequence.</div>
+      {/* Database Header */}
+      <div className="relative z-10 mb-3">
+        <span className="text-[11px] uppercase font-black tracking-widest text-[#00F5D4] bg-[#00F5D4]/10 px-2 py-1 border border-[#00F5D4]/20 rounded-xs inline-block">
+          📊 Segmented Telemetry Database
+        </span>
+        <div className="w-full h-[1px] bg-gradient-to-r from-[#00F5D4]/30 via-gray-800 to-transparent mt-2" />
+      </div>
+
+      {/* Scroll Containment Layer */}
+      <div className="flex flex-col gap-3.5 max-h-[600px] overflow-y-auto overscroll-contain pr-1 relative z-10 pb-4">
+        {Object.keys(compartmentalizedGroups).length === 0 ? (
+          <div className="p-5 border border-dashed border-gray-800 text-center rounded-xs bg-black/20 flex flex-col items-center justify-center gap-2 my-1">
+            <span className="text-xl">📊</span>
+            <span className="text-xs font-black text-gray-400 uppercase tracking-wide">Your history is empty</span>
+          </div>
         ) : (
-          trackerLogs.map(log => (
-            <div key={log.id} className="p-2.5 border border-gray-800/80 bg-black/40 rounded-xs flex flex-col gap-1.5">
-              <div className="flex justify-between items-center border-b border-gray-900 pb-1">
-                <span className="text-white font-black text-xs uppercase">{log.exercise}</span>
-                <span className="text-[9px] text-gray-600 font-bold">{log.date}</span>
+          Object.keys(compartmentalizedGroups).map(exName => {
+            const logs = compartmentalizedGroups[exName];
+            const themeStyle = getExerciseTheme(exName);
+            const avgScore = Math.round(logs.reduce((sum, l) => sum + l.score, 0) / logs.length);
+
+            return (
+              <div key={exName} className={`border border-gray-800 bg-gradient-to-b ${themeStyle.bg} to-black rounded-xs flex flex-col overflow-hidden shadow-md ${themeStyle.border}`}>
+                
+                {/* Clickable Header for Modal Popup Popup */}
+                <div 
+                  onClick={() => setActiveHistoryModal(exName)}
+                  className="px-3 py-2 bg-[#141414] hover:bg-[#1b1b1b] border-b border-gray-900 flex justify-between items-center cursor-pointer transition-colors group"
+                  title="Click to view full isolated telemetry popup"
+                >
+                  <div className="flex flex-col gap-0.5">
+                    <span className={`text-xs font-black uppercase tracking-wider group-hover:text-[#00F5D4] transition-colors ${themeStyle.text}`}>{exName} 🔍</span>
+                    <span className="text-[8px] uppercase text-gray-500 font-bold">Avg Performance: {avgScore}%</span>
+                  </div>
+                  <span className="text-[9px] font-black text-gray-400 bg-black/50 px-2 py-0.5 rounded-xs border border-gray-800">
+                    {logs.length} Logs
+                  </span>
+                </div>
+
+                {/* Progress bar line */}
+                <div className="w-full h-[2px] bg-gray-900">
+                  <div className="h-full bg-gradient-to-r from-red-500 to-[#00F5D4] transition-all" style={{ width: `${avgScore}%` }} />
+                </div>
+
+                {/* Inline Short Previews */}
+                <div className="p-2 flex flex-col gap-1.5 bg-black/20">
+                  {logs.slice(0, 3).map(log => (
+                    <div key={log.id} className="p-3 bg-[#161616] border border-gray-900 rounded-xs flex flex-row items-start justify-between text-[11px] w-full h-auto gap-2">
+                      <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+                        <span className="text-gray-500 text-[8px] font-black tracking-wider">{log.date}</span>
+                        <span className="text-gray-300 font-medium break-words whitespace-normal leading-normal">"{log.issue}"</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 shrink-0 pl-1">
+                        <span className={`font-black text-xs ${log.score >= 80 ? 'text-[#00F5D4]' : 'text-red-400'}`}>
+                          {log.score}%
+                        </span>
+                        <button onClick={(e) => { e.stopPropagation(); handleDeleteRecord(log.id); }} className="text-gray-600 hover:text-red-500 font-bold text-[11px] cursor-pointer">
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {logs.length > 3 && (
+                    <span className="text-[10px] text-gray-500 font-bold text-center block pt-1 cursor-pointer hover:text-[#00F5D4]" onClick={() => setActiveHistoryModal(exName)}>
+                      + View {logs.length - 3} More Archived Records
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[11px] text-gray-400 leading-normal max-w-[80%] italic">"{log.issue}"</span>
-                <span className={`text-sm font-black ${log.score >= 80 ? 'text-[#2EC4B6]' : log.score >= 65 ? 'text-yellow-400' : 'text-red-500'}`}>
-                  {log.score}%
-                </span>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
+
+      {/* 🚨 DYNAMIC HIGH-FIDELITY TELEMETRY POPUP MODAL */}
+      {activeHistoryModal && (() => {
+        const modalLogs = compartmentalizedGroups[activeHistoryModal] || [];
+        return (
+          <div className="fixed inset-0 z-[100000] flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
+            <div className="w-full max-w-md bg-[#0d0d0d] border border-gray-800 rounded-sm shadow-[0_0_50px_rgba(0,245,212,0.15)] flex flex-col max-h-[80vh]">
+              
+              <div className="p-4 bg-[#121212] border-b border-gray-900 flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="text-xs font-black uppercase text-[#00F5D4] tracking-widest">Isolated Log Report</span>
+                  <span className="text-sm font-black text-white uppercase mt-0.5">{activeHistoryModal}</span>
+                </div>
+                <button 
+                  onClick={() => setActiveHistoryModal(null)}
+                  className="text-xs font-black bg-gray-950 border border-gray-800 text-gray-400 hover:text-red-500 px-2.5 py-1 rounded-xs cursor-pointer transition-colors"
+                >
+                  ✕ CLOSE
+                </button>
+              </div>
+
+              <div className="p-4 overflow-y-auto flex flex-col gap-3 flex-1 bg-black/40">
+                {modalLogs.length === 0 ? (
+                  <span className="text-xs text-gray-600 text-center block py-4">No data points saved in active stream.</span>
+                ) : (
+                  modalLogs.map(log => (
+                    <div key={log.id} className="p-3 bg-[#141414] border border-gray-900 rounded-xs flex items-start justify-between gap-3 shadow-md">
+                      <div className="flex flex-col gap-1 flex-1">
+                        <span className="text-[9px] font-black text-gray-500 tracking-wider">{log.date}</span>
+                        <span className="text-xs text-gray-200 leading-normal font-medium">"{log.issue}"</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        <span className={`font-black text-sm ${log.score >= 80 ? 'text-[#00F5D4]' : 'text-red-400'}`}>
+                          {log.score}%
+                        </span>
+                        <button 
+                          onClick={() => {
+                            handleDeleteRecord(log.id);
+                            if (modalLogs.length <= 1) setActiveHistoryModal(null);
+                          }} 
+                          className="text-gray-600 hover:text-red-500 font-bold text-xs cursor-pointer p-0.5 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
     </div>
   );
 })()}
-                  {activeTool === 'radar' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🎯 Analytics Chart!</div>}
-                  {activeTool === '1rm' && (
-  <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
-    {/* 🔥 Main Title Highlighted with Bottom Border/Underline */}
-    <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
-      <span>🏋️</span> 1-Rep Max Calculator
-    </h4>
-    
-    <div className="flex flex-col gap-4">
-      {/* Weight Input */}
-      <div>
-        <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Weight Lifted (KG)</label>
-        <input 
-          type="number" 
-          value={calcWeight} 
-          onChange={(e) => setCalcWeight(e.target.value)}
-          placeholder="e.g., 80" 
-          className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
-        />
-      </div>
 
-      {/* Reps Input */}
-      <div>
-        <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Reps Performed</label>
-        <input 
-          type="number" 
-          value={calcReps} 
-          onChange={(e) => setCalcReps(e.target.value)}
-          placeholder="e.g., 6" 
-          className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
-        />
-      </div>
-
-      {/* Dynamic Conditional Rendering for Lower Section */}
-      {calcWeight && calcReps ? (
-        /* Dynamic Live Calculation Output Card */
-        <div className="mt-2 p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 text-center rounded-xs flex flex-col gap-1">
-          <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">Estimated 1-Rep Max</span>
-          <span className="text-3xl font-black text-[#FF6B35] tracking-wide my-1">
-            {Math.round(parseFloat(calcWeight) * (1 + parseInt(calcReps) / 30))} KG
-          </span>
-          <span className="text-[10px] text-gray-500 font-medium leading-relaxed">
-            Calculated in real-time using the standard Epley math equation.
-          </span>
-        </div>
-      ) : (
-        /* Educational Dashboard Layout */
-        <div className="mt-2 flex flex-col gap-4">
-          <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">
-            Enter your weight and reps above to dynamically calculate your maximum capacity.
-          </div>
-          
-          {/* Section 1: Reps Percentage Breakdown Quick Table */}
-          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
-            {/* 🆙 Increased Subheading Size & Weight */}
-            <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
-              💡 Reps Strength Conversion Guide
-            </span>
-            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-              <span className="text-gray-400">1 Rep</span>
-              <span className="text-gray-300 font-bold">100% of 1RM</span>
-            </div>
-            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-              <span className="text-gray-400">5 Reps</span>
-              <span className="text-gray-300 font-bold">~87% of 1RM</span>
-            </div>
-            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
-              <span className="text-gray-400">10 Reps</span>
-              <span className="text-gray-300 font-bold">~75% of 1RM</span>
-            </div>
-          </div>
-
-          {/* Section 2: Targeted Training Intensity Guide */}
-          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
-            {/* 🆙 Increased Subheading Size & Weight */}
-            <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
-              🎯 1RM Intensity Target Zones
-            </span>
-            <div className="flex flex-col gap-1.5 text-[11px]">
-              <div>
-                <span className="text-gray-300 font-bold">80-100% 1RM (1-3 Reps):</span>
-                <span className="text-gray-400 block pl-1">Promotes overall strength and mechanical power output.</span>
-              </div>
-              <div>
-                <span className="text-gray-300 font-bold">70-80% 1RM (7-12 Reps):</span>
-                <span className="text-gray-400 block pl-1">Optimal spectrum for muscle hypertrophy (growth).</span>
-              </div>
-              <div>
-                <span className="text-gray-300 font-bold">~70% 1RM (10-15 Reps):</span>
-                <span className="text-gray-400 block pl-1">Builds local muscular endurance and recovery capability.</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Safety & Measurement Protocol Checklist */}
-          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
-            {/* 🆙 Increased Subheading Size & Weight */}
-            <span className="text-[11px] uppercase font-black text-red-400 tracking-wider block mb-1">
-              🛡️ Safe Measurement Protocols
-            </span>
-            <div className="flex flex-col gap-2 text-[11px] text-gray-400 leading-relaxed">
-              <p>
-                <strong className="text-gray-300">Estimation Method:</strong> Lift a challenging weight for 3-10 reps until form failure. Lower rep ranges yield closer accuracy to your actual 1RM.
-              </p>
-              <p>
-                <strong className="text-gray-300">Direct Method:</strong> Progressively load plates with 2-5 min rest cycles. Always prioritize a spotter and strict form over mechanical ego lifting.
-              </p>
-            </div>
-          </div>
-
-          {/* Section 4: Advanced Plateau Breaking Tactics */}
-          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
-            {/* 🆙 Increased Subheading Size & Weight */}
-            <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">
-              ⚡ Systems to Improve Your 1RM
-            </span>
-            <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
-              <p>
-                <strong className="text-gray-300">Pyramid Sets:</strong> Start with lower weight and higher reps, progressively scaling up the load while dropping the repetition matrix.
-              </p>
-              <p>
-                <strong className="text-gray-300">Compound / Supersets:</strong> Execute back-to-back exercises working surrounding supporting muscle groups without rest to force neural adaptation.
-              </p>
-              <p>
-                <strong className="text-gray-300">Strategic Recovery:</strong> Overtraining actively limits mechanical force output. Ensure deep neurological rest blocks to let muscle tissue rebuild.
-              </p>
-            </div>
-            <span className="text-[9px] text-gray-600 italic block mt-1 border-t border-gray-800 pt-1.5">
-              *Epley Formula accuracy peaks between 1 to 10 repetitions.
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-  </div>
-)}
 {activeTool === 'plate' && (() => {
   const targetWeight = parseFloat(plateWeight) || 0;
   const barbellWeight = weightUnit === 'KG' ? 20 : 45; // 20kg or 45lbs standard bar
