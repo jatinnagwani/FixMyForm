@@ -2,6 +2,183 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import { EXERCISE_REFS } from "../pages/ExerciseData.js"; // 🚀 Connecting metadata structure 
 
+// 1️⃣ STANDALONE 1-REP MAX SUB-COMPONENT (Rules of Hooks Fix)
+function OneRepMaxCalc({ weightUnit, isDark }) {
+  const [oneRepWeight, setOneRepWeight] = useState('');
+  const [oneRepReps, setOneRepReps] = useState('');
+
+  const w = parseFloat(oneRepWeight) || 0;
+  const r = parseInt(oneRepReps) || 0;
+
+  const epley1RM = w > 0 && r > 0 ? w * (1 + r / 30) : 0;
+  const brzycki1RM = w > 0 && r > 1 ? w / (1.0278 - (0.0278 * r)) : w;
+  const final1RM = r === 1 ? w : Math.round((epley1RM + brzycki1RM) / 2);
+  const percentages = [95, 90, 85, 80, 75, 70, 65, 60];
+
+  return (
+    <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm animate-fadeIn">
+      <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5 font-ops">
+        <span>🏋️</span> 1-Rep Max (1RM) Calculator
+      </h4>
+      <div className="flex flex-col gap-3.5">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Weight Lifted</label>
+            <input type="number" value={oneRepWeight} onChange={(e) => setOneRepWeight(e.target.value)} placeholder="e.g., 100" className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white' : 'bg-white border-[#e0e0e0]'}`} />
+          </div>
+          <div>
+            <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Reps Performed</label>
+            <input type="number" value={oneRepReps} onChange={(e) => setOneRepReps(e.target.value)} placeholder="e.g., 5" className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white' : 'bg-white border-[#e0e0e0]'}`} />
+          </div>
+        </div>
+        {final1RM > 0 ? (
+          <div className="flex flex-col gap-3 animate-fadeIn">
+            <div className="p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 text-center rounded-xs flex flex-col gap-1">
+              <span className="text-[10px] uppercase font-black tracking-wider text-gray-400">Estimated 1-Rep Max</span>
+              <span className="text-3xl font-black text-[#FF6B35] tracking-wide">{final1RM} <span className="text-xs font-bold text-gray-400">{weightUnit}</span></span>
+            </div>
+            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+              <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">📊 Calculated Percentage Load Matrix</span>
+              <div className="flex flex-col gap-1 max-h-48 overflow-y-auto pr-0.5">
+                {percentages.map(pct => {
+                  const targetLoad = Math.round((final1RM * pct) / 100);
+                  let zoneLabel = pct >= 90 ? "Absolute Strength" : pct < 70 ? "Endurance Phase" : "Hypertrophy";
+                  return (
+                    <div key={pct} className="flex justify-between text-[11px] border-b border-gray-800/60 pb-1 last:border-0 pt-0.5">
+                      <span className="text-gray-400 font-medium">{pct}% 1RM ({zoneLabel})</span>
+                      <span className="text-gray-200 font-black">{targetLoad} {weightUnit}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="mt-1 border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 text-[11px] text-gray-400 leading-relaxed">
+            Apne working set ka weight aur reps enter karo taaki raw mechanical ceiling calculate ho sake.
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ChronoCadenceMatrix() {
+  const [timerMode, setTimerMode] = useState('rest');
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [isActive, setIsActive] = useState(false);
+
+  useEffect(() => {
+    let interval = null;
+    if (isActive && timeLeft > 0) {
+      interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
+    } else if (timeLeft === 0) {
+      setIsActive(false);
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; osc.frequency.setValueAtTime(850, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.25);
+      } catch (e) {}
+    }
+    return () => clearInterval(interval);
+  }, [isActive, timeLeft]);
+
+  return (
+    <div className="p-5 border border-[#FF6B35]/30 bg-black/20 rounded-sm font-nav text-sm">
+      <h4 className="text-sm font-black text-[#FF6B35] uppercase tracking-wider pb-2 border-b-2 border-[#FF6B35]/20 mb-5 flex items-center gap-1.5 font-ops">
+        <span>⏱️</span> Chrono Cadence Matrix
+      </h4>
+
+      <div className="flex flex-col gap-4">
+        {/* Mode Toggle — Taller & Full Width */}
+        <div className="grid grid-cols-2 gap-2">
+          <button type="button"
+            onClick={() => { setTimerMode('rest'); setIsActive(false); setTimeLeft(60); }}
+            className={`py-3.5 text-xs font-black uppercase tracking-wider rounded-xs border transition-all cursor-pointer ${timerMode === 'rest' ? 'bg-[#FF6B35]/10 border-[#FF6B35] text-[#FF6B35]' : 'bg-[#121212] border-gray-800 text-gray-500 hover:text-white hover:border-gray-600'}`}>
+            💤 Rest Interval
+          </button>
+          <button type="button"
+            onClick={() => { setTimerMode('performance'); setIsActive(false); setTimeLeft(45); }}
+            className={`py-3.5 text-xs font-black uppercase tracking-wider rounded-xs border transition-all cursor-pointer ${timerMode === 'performance' ? 'bg-[#FF6B35]/10 border-[#FF6B35] text-[#FF6B35]' : 'bg-[#121212] border-gray-800 text-gray-500 hover:text-white hover:border-gray-600'}`}>
+            🔥 Set TUT Pace
+          </button>
+        </div>
+
+        {/* Big Timer Display — Stretched & Tall */}
+        <div className="bg-[#0a0a0a] border border-gray-900 rounded-xs px-4 py-8 flex flex-col items-center justify-center relative">
+          <span className={`text-6xl font-black tracking-widest font-ops transition-colors ${isActive && timeLeft <= 10 ? 'text-red-500' : isActive ? 'text-white' : 'text-gray-500'}`}>
+            {Math.floor(timeLeft / 60).toString().padStart(2, '0')}:{(timeLeft % 60).toString().padStart(2, '0')}
+          </span>
+          <span className="text-[9px] uppercase font-bold tracking-widest text-gray-600 mt-3">
+            {timerMode === 'rest' ? 'Inter-Set Recovery Matrix' : 'Time Under Tension Threshold'}
+          </span>
+
+          {/* Progress ring bar */}
+          <div className="w-full h-1.5 bg-gray-900 rounded-full mt-4 overflow-hidden">
+            <div className="h-full bg-[#FF6B35] transition-all duration-1000"
+              style={{ width: `${(timeLeft / (timerMode === 'rest' ? 60 : 45)) * 100}%` }} />
+          </div>
+        </div>
+
+        {/* Quick Presets */}
+        <div className="flex gap-2 justify-center">
+          {(timerMode === 'rest' ? [30, 45, 60, 90] : [30, 45, 60]).map(s => (
+            <button key={s} type="button"
+              onClick={() => { setIsActive(false); setTimeLeft(s); }}
+              className={`flex-1 py-2 text-xs font-black uppercase bg-gray-950 border rounded-xs transition-colors cursor-pointer ${timeLeft === s ? 'border-[#FF6B35] text-[#FF6B35]' : 'border-gray-900 text-gray-400 hover:border-gray-700'}`}>
+              {s}s
+            </button>
+          ))}
+        </div>
+
+{/* Trigger + Reset — Taller */}
+        <div className="grid grid-cols-3 gap-2">
+          <button type="button"
+            onClick={() => setIsActive(!isActive)}
+            className={`col-span-2 py-3.5 text-center text-xs font-black uppercase tracking-widest rounded-xs border transition-all cursor-pointer ${isActive ? 'bg-red-950/20 border-red-900 text-red-400' : 'bg-[#FF6B35] border-[#FF6B35] text-black'}`}>
+            {isActive ? '⏸ Pause Matrix' : '▶ Trigger Chrono'}
+          </button>
+          <button type="button"
+            onClick={() => { setIsActive(false); setTimeLeft(timerMode === 'rest' ? 60 : 45); }}
+            className="py-3.5 bg-[#121212] border border-gray-900 text-gray-400 hover:text-white text-xs font-black uppercase tracking-widest rounded-xs transition-colors cursor-pointer">
+            ↺ Reset
+          </button>
+        </div>
+
+{/* 🧠 SCI-FI PROTOCOL CARDS (Spaced out for better readability) */}
+        <div className="mt-6 flex flex-col gap-4">
+          <div className="p-4 bg-[#121212]/80 border border-gray-900 border-l-2 border-l-[#FF6B35] rounded-xs shadow-sm hover:bg-[#161616] transition-colors">
+            <span className="text-[10px] font-black text-[#FF6B35] uppercase tracking-wider block mb-1.5">⚡ The 10s Rule</span>
+            <p className="text-[10px] text-gray-400 leading-relaxed">Sets lasting less than 10 seconds strictly train raw explosive power and CNS speed, not muscle hypertrophy.</p>
+          </div>
+          
+          <div className="p-4 bg-[#121212]/80 border border-gray-900 border-l-2 border-l-[#00F5D4] rounded-xs shadow-sm hover:bg-[#161616] transition-colors">
+            <span className="text-[10px] font-black text-[#00F5D4] uppercase tracking-wider block mb-1.5">⏱️ TUT Cadence</span>
+            <p className="text-[10px] text-gray-400 leading-relaxed">Optimal hypertrophy reps typically take 4 seconds (1s explosive push, 3s controlled lowering phase).</p>
+          </div>
+
+          <div className="p-4 bg-[#121212]/80 border border-gray-900 border-l-2 border-l-yellow-500 rounded-xs shadow-sm hover:bg-[#161616] transition-colors">
+            <span className="text-[10px] font-black text-yellow-500 uppercase tracking-wider block mb-1.5">🔥 Rest-Pause Hack</span>
+            <p className="text-[10px] text-gray-400 leading-relaxed">Taking a micro-break (10-15s) mid-set lets you temporarily bypass failure and hit extra reps with heavy loads.</p>
+          </div>
+
+          <div className="p-4 bg-[#121212]/80 border border-gray-900 border-l-2 border-l-purple-500 rounded-xs shadow-sm hover:bg-[#161616] transition-colors">
+            <span className="text-[10px] font-black text-purple-400 uppercase tracking-wider block mb-1.5">🛡️ The Plank Reality</span>
+            <p className="text-[10px] text-gray-400 leading-relaxed">Holding a plank past 90 seconds stops building core strength; it merely tests mental endurance and boredom.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+
+
 function Navbar({ theme, toggleTheme }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -320,13 +497,153 @@ useEffect(() => {
                     <span>🧮 Barbell Plate Calculator</span> <span className="text-xs text-gray-500 group-hover:text-[#2EC4B6]">→</span>
                   </button>
 
-                  <div className="text-[10px] font-black tracking-[2px] text-gray-500 uppercase mt-4 mb-1">04 — Workout Plans</div>
-                  <button onClick={() => setActiveTool('routine')} className={`w-full text-left p-4 border transition-all text-sm font-bold flex items-center justify-between group cursor-pointer ${isDark ? 'bg-[#161616] border-[#2a2a2a] hover:border-[#FF6B35]' : 'bg-gray-50 border-[#e0e0e0] hover:border-[#FF6B35]'}`}>
-                    <span>🧠 Smart Routine Swapper</span> <span className="text-xs text-gray-500 group-hover:text-[#FF6B35]">→</span>
+<div className="text-[10px] font-black tracking-[2px] text-gray-500 uppercase mt-4 mb-1">04 — Workout Timers</div>
+                  <button onClick={() => setActiveTool('timer')} className={`w-full text-left p-4 border transition-all text-sm font-bold flex items-center justify-between group cursor-pointer ${isDark ? 'bg-[#161616] border-[#2a2a2a] hover:border-[#FF6B35]' : 'bg-gray-50 border-[#e0e0e0] hover:border-[#FF6B35]'}`}>
+                    <span>⏱️ Chrono Cadence Matrix</span> <span className="text-xs text-gray-500 group-hover:text-[#FF6B35]">→</span>
                   </button>
                 </div>
               ) : (
                 <div className="font-nav">
+
+                                   {activeTool === '1rm' && <div className="p-4 border border-dashed border-[#2EC4B6]/30 text-center text-xs text-gray-400">🏋️ 1-Rep Max Calculator View!</div>}
+                  {activeTool === '1rm' && (
+  <div className="p-4 border border-[#2EC4B6]/30 bg-black/20 rounded-sm font-nav text-sm">
+    {/* 🔥 Main Title Highlighted with Bottom Border/Underline */}
+    <h4 className="text-sm font-black text-[#2EC4B6] uppercase tracking-wider pb-2 border-b-2 border-[#2EC4B6]/20 mb-4 flex items-center gap-1.5">
+      <span>🏋️</span> 1-Rep Max Calculator
+    </h4>
+    
+    <div className="flex flex-col gap-4">
+      {/* Weight Input */}
+      <div>
+        <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Weight Lifted (KG)</label>
+        <input 
+          type="number" 
+          value={calcWeight} 
+          onChange={(e) => setCalcWeight(e.target.value)}
+          placeholder="e.g., 80" 
+          className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+        />
+      </div>
+
+      {/* Reps Input */}
+      <div>
+        <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1">Reps Performed</label>
+        <input 
+          type="number" 
+          value={calcReps} 
+          onChange={(e) => setCalcReps(e.target.value)}
+          placeholder="e.g., 6" 
+          className={`w-full p-2.5 border text-xs focus:outline-none focus:border-[#2EC4B6] ${isDark ? 'bg-[#161616] border-[#2a2a2a] text-white placeholder-gray-600' : 'bg-white border-[#e0e0e0] text-[#121212] placeholder-gray-400'}`}
+        />
+      </div>
+
+      {/* Dynamic Conditional Rendering for Lower Section */}
+      {calcWeight && calcReps ? (
+        /* Dynamic Live Calculation Output Card */
+        <div className="mt-2 p-4 border border-dashed border-[#FF6B35]/30 bg-[#FF6B35]/5 text-center rounded-xs flex flex-col gap-1">
+          <span className="text-[10px] uppercase font-black tracking-wider text-gray-400 block">Estimated 1-Rep Max</span>
+          <span className="text-3xl font-black text-[#FF6B35] tracking-wide my-1">
+            {Math.round(parseFloat(calcWeight) * (1 + parseInt(calcReps) / 30))} KG
+          </span>
+          <span className="text-[10px] text-gray-500 font-medium leading-relaxed">
+            Calculated in real-time using the standard Epley math equation.
+          </span>
+        </div>
+      ) : (
+        /* Educational Dashboard Layout */
+        <div className="mt-2 flex flex-col gap-4">
+          <div className="p-3 border border-dashed border-gray-700/30 text-center text-xs text-gray-400 rounded-xs bg-black/5">
+            Enter your weight and reps above to dynamically calculate your maximum capacity.
+          </div>
+          
+          {/* Section 1: Reps Percentage Breakdown Quick Table */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1.5">
+              💡 Reps Strength Conversion Guide
+            </span>
+            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+              <span className="text-gray-400">1 Rep</span>
+              <span className="text-gray-300 font-bold">100% of 1RM</span>
+            </div>
+            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+              <span className="text-gray-400">5 Reps</span>
+              <span className="text-gray-300 font-bold">~87% of 1RM</span>
+            </div>
+            <div className="flex justify-between text-[11px] border-b border-gray-800 pb-1">
+              <span className="text-gray-400">10 Reps</span>
+              <span className="text-gray-300 font-bold">~75% of 1RM</span>
+            </div>
+          </div>
+
+          {/* Section 2: Targeted Training Intensity Guide */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-[#FF6B35] tracking-wider block mb-1">
+              🎯 1RM Intensity Target Zones
+            </span>
+            <div className="flex flex-col gap-1.5 text-[11px]">
+              <div>
+                <span className="text-gray-300 font-bold">80-100% 1RM (1-3 Reps):</span>
+                <span className="text-gray-400 block pl-1">Promotes overall strength and mechanical power output.</span>
+              </div>
+              <div>
+                <span className="text-gray-300 font-bold">70-80% 1RM (7-12 Reps):</span>
+                <span className="text-gray-400 block pl-1">Optimal spectrum for muscle hypertrophy (growth).</span>
+              </div>
+              <div>
+                <span className="text-gray-300 font-bold">~70% 1RM (10-15 Reps):</span>
+                <span className="text-gray-400 block pl-1">Builds local muscular endurance and recovery capability.</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Safety & Measurement Protocol Checklist */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-red-400 tracking-wider block mb-1">
+              🛡️ Safe Measurement Protocols
+            </span>
+            <div className="flex flex-col gap-2 text-[11px] text-gray-400 leading-relaxed">
+              <p>
+                <strong className="text-gray-300">Estimation Method:</strong> Lift a challenging weight for 3-10 reps until form failure. Lower rep ranges yield closer accuracy to your actual 1RM.
+              </p>
+              <p>
+                <strong className="text-gray-300">Direct Method:</strong> Progressively load plates with 2-5 min rest cycles. Always prioritize a spotter and strict form over mechanical ego lifting.
+              </p>
+            </div>
+          </div>
+
+          {/* Section 4: Advanced Plateau Breaking Tactics */}
+          <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-2">
+            {/* 🆙 Increased Subheading Size & Weight */}
+            <span className="text-[11px] uppercase font-black text-[#2EC4B6] tracking-wider block mb-1">
+              ⚡ Systems to Improve Your 1RM
+            </span>
+            <div className="flex flex-col gap-1.5 text-[11px] text-gray-400 leading-relaxed">
+              <p>
+                <strong className="text-gray-300">Pyramid Sets:</strong> Start with lower weight and higher reps, progressively scaling up the load while dropping the repetition matrix.
+              </p>
+              <p>
+                <strong className="text-gray-300">Compound / Supersets:</strong> Execute back-to-back exercises working surrounding supporting muscle groups without rest to force neural adaptation.
+              </p>
+              <p>
+                <strong className="text-gray-300">Strategic Recovery:</strong> Overtraining actively limits mechanical force output. Ensure deep neurological rest blocks to let muscle tissue rebuild.
+              </p>
+            </div>
+            <span className="text-[9px] text-gray-600 italic block mt-1 border-t border-gray-800 pt-1.5">
+              *Epley Formula accuracy peaks between 1 to 10 repetitions.
+            </span>
+          </div>
+        </div>
+      )}
+    </div>
+  </div>
+)}
+                  
+{activeTool === 'timer' && <ChronoCadenceMatrix />}
+
 {activeTool === 'fat' && (() => {
   const h = parseFloat(fatHeight) || 0;
   const n = parseFloat(fatNeck) || 0;
@@ -1314,7 +1631,7 @@ useEffect(() => {
     </div>
   );
 })()}
-                  {activeTool === 'routine' && <div className="p-4 border border-dashed border-red-400/30 text-center text-xs text-gray-400">🧠 AI Workout Builder!</div>}
+
                 </div>
               )}
             </div>
