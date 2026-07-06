@@ -172,8 +172,8 @@ Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
     }
   }
 
-  return (
-    <div onClick={() => setShowDropdown(false)} className={`min-h-screen pt-20 ${isDark ? 'bg-[#0d0d0d] text-white' : 'bg-[#F4F6F6] text-[#121212]'}`}>
+return (
+    <div onClick={() => setShowDropdown(false)} className={`min-h-screen pt-20 ${isDark ? 'text-white' : 'text-[#121212]'} bg-transparent`}>
 
       {/* Header */}
       <div className="px-4 sm:px-8 lg:px-16 py-12">

@@ -177,43 +177,20 @@ function ChronoCadenceMatrix() {
   );
 }
 
-// 🎯 3️⃣ STANDALONE SUB-COMPONENT: INJURY RISK RADAR (Always Ready Reset)
+// 🎯 3️⃣ STANDALONE SUB-COMPONENT: BIOMECHANICAL INJURY RISK RADAR
 function InjuryRiskRadar({ isDark }) {
-  const [liftType, setLiftType] = useState('');
-  const [symptom, setSymptom] = useState('');
-  const [fatigue, setFatigue] = useState(1); 
-  const [loadIntensity, setLoadIntensity] = useState('');
-  const [pastInjury, setPastInjury] = useState('');
-  const [warmupStatus, setWarmupStatus] = useState('');
-
-  // 🛠️ Checks if ALL are selected (to show result)
-  const isScanComplete = liftType && symptom && loadIntensity && pastInjury && warmupStatus;
-  
-  // 🛠️ NEW: Checks if AT LEAST ONE option is touched (to show reset button)
-  const isStarted = liftType !== '' || symptom !== '' || loadIntensity !== '' || pastInjury !== '' || warmupStatus !== '' || fatigue !== 1;
-
-  const handleReset = () => {
-    setLiftType('');
-    setSymptom('');
-    setFatigue(1);
-    setLoadIntensity('');
-    setPastInjury('');
-    setWarmupStatus('');
-  };
-
-  const getFatigueTheme = (level) => {
-    if (level <= 2) return { bg: 'bg-green-500/20', border: 'border-green-500/30', accent: 'accent-green-500', text: 'text-green-400' };
-    if (level === 3) return { bg: 'bg-yellow-500/20', border: 'border-yellow-500/30', accent: 'accent-yellow-500', text: 'text-yellow-400' };
-    return { bg: 'bg-red-500/20', border: 'border-red-500/30', accent: 'accent-red-500', text: 'text-red-400' };
-  };
-  const fTheme = getFatigueTheme(fatigue);
+  const [liftType, setLiftType] = useState('Deadlift');
+  const [symptom, setSymptom] = useState('none');
+  const [fatigue, setFatigue] = useState(2);
+  const [loadIntensity, setLoadIntensity] = useState('hypertrophy');
+  const [pastInjury, setPastInjury] = useState('healthy');
+  const [warmupStatus, setWarmupStatus] = useState('none');
 
   let riskScore = 15 + (fatigue * 8);
-  if ((liftType === 'Deadlift' || liftType === 'T-Bar Row') && symptom === 'back_tight') riskScore += 30;
-  if ((liftType.includes('Bench Press') || liftType === 'Shoulder Overhead Press') && symptom === 'shoulder_click') riskScore += 25;
-  if ((liftType === 'Barbell Back Squat' || liftType === 'Leg Press' || liftType === 'Hack Squat') && symptom === 'knee_cave') riskScore += 25;
-  if (liftType === 'Clean and Jerk' && symptom !== 'none') riskScore += 20;
-
+  if (liftType === 'Deadlift' && symptom === 'back_tight') riskScore += 30;
+  if (liftType === 'Bench Press' && symptom === 'shoulder_click') riskScore += 25;
+  if (liftType === 'Squat' && symptom === 'knee_cave') riskScore += 25;
+  if (liftType === 'Overhead Press' && symptom === 'shoulder_click') riskScore += 25;
   if (loadIntensity === 'max') riskScore += 15;
   if (pastInjury === 'severe') riskScore += 25;
   if (pastInjury === 'minor') riskScore += 10;
@@ -223,166 +200,114 @@ function InjuryRiskRadar({ isDark }) {
   riskScore = Math.max(0, Math.min(100, riskScore));
 
   const getRiskDetails = (score) => {
-    if (score < 45) return { label: 'LOW RISK / SAFE TO LIFT', color: 'text-[#00F5D4]', border: 'border-[#00F5D4]/20', bg: 'bg-[#00F5D4]/5', bar: 'bg-[#00F5D4]' };
-    if (score < 75) return { label: 'MODERATE RISK / BE CAREFUL', color: 'text-yellow-400', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', bar: 'bg-yellow-400' };
-    return { label: 'HIGH RISK / DANGER ZONE', color: 'text-red-500', border: 'border-red-500/30', bg: 'bg-red-500/5', bar: 'bg-red-500' };
+    if (score < 45) return { label: 'LOW RISK SPECTRUM', color: 'text-[#00F5D4]', border: 'border-[#00F5D4]/20', bg: 'bg-[#00F5D4]/5', bar: 'bg-[#00F5D4]' };
+    if (score < 75) return { label: 'MODERATE AMBIENT RISK', color: 'text-yellow-400', border: 'border-yellow-500/20', bg: 'bg-yellow-500/5', bar: 'bg-yellow-400' };
+    return { label: 'CRITICAL OVERLOAD FAILURE WARNING', color: 'text-red-500', border: 'border-red-500/30', bg: 'bg-red-500/5', bar: 'bg-red-500' };
   };
 
   const risk = getRiskDetails(riskScore);
 
   return (
-    <div className="p-4 border border-red-500/30 bg-black/20 rounded-sm font-nav text-sm animate-fadeIn flex flex-col h-[calc(100vh-120px)]">
-      <h4 className="text-sm font-black text-red-500 uppercase tracking-wider pb-2 border-b-2 border-red-500/20 mb-4 flex items-center gap-1.5 font-ops shrink-0">
-        <span>🎯</span> Injury Risk Radar
+    <div className="p-4 border border-red-500/30 bg-black/20 rounded-sm font-nav text-sm animate-fadeIn">
+      <h4 className="text-sm font-black text-red-500 uppercase tracking-wider pb-2 border-b-2 border-red-500/20 mb-4 flex items-center gap-1.5 font-ops">
+        <span>🎯</span> Injury Risk Radar Matrix
       </h4>
 
-      <div className="flex flex-col gap-4.5 pb-2 overflow-y-auto pr-1 flex-1">
+      <div className="flex flex-col gap-4 h-[60vh] overflow-y-auto pr-1 pb-4">
         <div>
-          <label className="text-[10px] uppercase font-black text-purple-400 block mb-1 tracking-wider">Select Exercise</label>
-          <select value={liftType} onChange={(e) => setLiftType(e.target.value)} className={`w-full p-2.5 bg-[#121212] border border-gray-800 text-xs font-bold rounded-xs focus:outline-none focus:border-purple-500 cursor-pointer ${!liftType ? 'text-gray-500' : 'text-white'}`}>
-            <option value="" disabled>-- Choose Your Weapon --</option>
-            <option value="Barbell Back Squat">Barbell Back Squat</option>
-            <option value="Deadlift">Heavy Deadlift</option>
-            <option value="Leg Press">Leg Press (Leg Day Finisher)</option>
-            <option value="Hack Squat">Hack Squat (Quad Grind)</option>
-            <option value="Flat Barbell Bench Press">Flat Barbell Bench Press</option>
-            <option value="Incline Barbell Bench Press">Incline Barbell Bench Press</option>
-            <option value="Dumbbell Bench Press">Dumbbell Bench Press</option>
-            <option value="Shoulder Overhead Press">Shoulder Overhead Press</option>
-            <option value="T-Bar Row">T-Bar Row (Heavy Pull)</option>
-            <option value="Clean and Jerk">Clean and Jerk (Olympic Max)</option>
+          <label className="text-[10px] uppercase font-black text-gray-500 block mb-1">Target Movement Pattern</label>
+          <select value={liftType} onChange={(e) => setLiftType(e.target.value)} className="w-full p-2.5 bg-[#121212] border border-gray-800 text-xs font-bold text-white rounded-xs focus:outline-none focus:border-red-500 cursor-pointer">
+            <option value="Barbell Squat">Barbell Back Squat</option>
+            <option value="Deadlift">Heavy Deadlift Pattern</option>
+            <option value="Bench Press">Horizontal Bench Press</option>
+            <option value="Overhead Press">Vertical Overhead Press</option>
           </select>
         </div>
 
         <div>
-          <label className="text-[10px] uppercase font-black text-blue-400 block mb-1 tracking-wider">Current Pain / Discomfort</label>
-          <select value={symptom} onChange={(e) => setSymptom(e.target.value)} className={`w-full p-2.5 bg-[#121212] border border-gray-800 text-xs font-bold rounded-xs focus:outline-none focus:border-blue-500 cursor-pointer ${!symptom ? 'text-gray-500' : 'text-white'}`}>
-            <option value="" disabled>-- Scan Your Body --</option>
-            <option value="none">Feeling Good / No Pain</option>
-            <option value="back_tight">Lower Back Tightness / Bending</option>
-            <option value="shoulder_click">Shoulder Pinching / Clicking</option>
-            <option value="knee_cave">Knees Caving Inward</option>
+          <label className="text-[10px] uppercase font-black text-gray-500 block mb-1">Active Neural / Joint Deficit</label>
+          <select value={symptom} onChange={(e) => setSymptom(e.target.value)} className="w-full p-2.5 bg-[#121212] border border-gray-800 text-xs font-bold text-white rounded-xs focus:outline-none focus:border-red-500 cursor-pointer">
+            <option value="none">Zero Symptom / Structural Clearance</option>
+            <option value="back_tight">Lumbar Tightness / Spinal Flexion</option>
+            <option value="shoulder_click">Shoulder Impingement / Clicking</option>
+            <option value="knee_cave">Knee Valgus / Internal Cave</option>
           </select>
         </div>
 
         <div>
-          <label className="text-[10px] uppercase font-black text-[#2EC4B6] block mb-1">Target Weight / Intensity</label>
-          <select value={loadIntensity} onChange={(e) => setLoadIntensity(e.target.value)} className={`w-full p-2 bg-[#121212] border border-gray-800 text-xs font-bold rounded-xs focus:outline-none focus:border-[#2EC4B6] cursor-pointer mb-2 ${!loadIntensity ? 'text-gray-500' : 'text-white'}`}>
-            <option value="" disabled>-- Define Your Load --</option>
-            <option value="volume">Light Weight (High Reps)</option>
-            <option value="hypertrophy">Medium Weight (Muscle Building)</option>
-            <option value="max">Heavy Weight (Max Effort / PR)</option>
+          <label className="text-[10px] uppercase font-black text-[#2EC4B6] block mb-1">Target Load Intensity (% of 1RM)</label>
+          <select value={loadIntensity} onChange={(e) => setLoadIntensity(e.target.value)} className="w-full p-2 bg-[#121212] border border-gray-800 text-xs font-bold text-white rounded-xs focus:outline-none focus:border-[#2EC4B6] cursor-pointer mb-1.5">
+            <option value="volume">&lt;70% (Endurance / Volume)</option>
+            <option value="hypertrophy">75-85% (Optimal Hypertrophy)</option>
+            <option value="max">90-100% (Max Effort / Strength)</option>
           </select>
-          <div className="border-l-2 border-[#2EC4B6]/50 pl-2.5 py-0.5">
-            <span className="text-[10px] font-bold text-gray-400 leading-normal block">
-              💡 Why we ask: Lifting extremely heavy weights puts much more stress on your spine and joints.
-            </span>
-          </div>
+          <div className="border-l-2 border-gray-700 pl-2"><span className="text-[9px] text-gray-500 italic leading-tight block">*Why we ask: Lifting at 95%+ capacity exponentially increases the mechanical shear force on your spine and joints.</span></div>
         </div>
 
         <div>
-          <label className="text-[10px] uppercase font-black text-[#FF6B35] block mb-1">Past Injury History</label>
-          <select value={pastInjury} onChange={(e) => setPastInjury(e.target.value)} className={`w-full p-2 bg-[#121212] border border-gray-800 text-xs font-bold rounded-xs focus:outline-none focus:border-[#FF6B35] cursor-pointer mb-2 ${!pastInjury ? 'text-gray-500' : 'text-white'}`}>
-            <option value="" disabled>-- Medical History Check --</option>
-            <option value="healthy">Never had a serious injury</option>
-            <option value="minor">Minor sprains or tweaks in the past</option>
-            <option value="severe">Major tear or past surgery</option>
+          <label className="text-[10px] uppercase font-black text-[#FF6B35] block mb-1">Previous Traumatic History</label>
+          <select value={pastInjury} onChange={(e) => setPastInjury(e.target.value)} className="w-full p-2 bg-[#121212] border border-gray-800 text-xs font-bold text-white rounded-xs focus:outline-none focus:border-[#FF6B35] cursor-pointer mb-1.5">
+            <option value="healthy">100% Healthy / No Past Issues</option>
+            <option value="minor">Minor Past Tweaks / Strains</option>
+            <option value="severe">Severe Past Tear / Surgery</option>
           </select>
-          <div className="border-l-2 border-[#FF6B35]/50 pl-2.5 py-0.5">
-            <span className="text-[10px] font-bold text-gray-400 leading-normal block">
-              💡 Why we ask: Old injuries make those specific body parts more likely to get hurt again.
-            </span>
-          </div>
+          <div className="border-l-2 border-gray-700 pl-2"><span className="text-[9px] text-gray-500 italic leading-tight block">*Why we ask: Prior injuries permanently alter your baseline "chronic risk".</span></div>
         </div>
 
         <div>
-          <label className="text-[10px] uppercase font-black text-yellow-500 block mb-1">Warm-Up Status</label>
-          <select value={warmupStatus} onChange={(e) => setWarmupStatus(e.target.value)} className={`w-full p-2 bg-[#121212] border border-gray-800 text-xs font-bold rounded-xs focus:outline-none focus:border-yellow-500 cursor-pointer mb-2 ${!warmupStatus ? 'text-gray-500' : 'text-white'}`}>
-            <option value="" disabled>-- Kinetic Readiness --</option>
-            <option value="none">No Warm-Up (Completely Cold)</option>
-            <option value="general">Light Cardio (5 Mins / Sweating a bit)</option>
-            <option value="specific">Proper Dynamic Stretching Done</option>
+          <label className="text-[10px] uppercase font-black text-yellow-500 block mb-1">Kinetic Warm-Up Status</label>
+          <select value={warmupStatus} onChange={(e) => setWarmupStatus(e.target.value)} className="w-full p-2 bg-[#121212] border border-gray-800 text-xs font-bold text-white rounded-xs focus:outline-none focus:border-yellow-500 cursor-pointer mb-1.5">
+            <option value="none">Zero Warm-Up (Cold Start)</option>
+            <option value="general">5-Min General Cardio (Light Sweat)</option>
+            <option value="specific">Specific Dynamic Stretching & Activation</option>
           </select>
-          <div className="border-l-2 border-yellow-500/50 pl-2.5 py-0.5">
-            <span className="text-[10px] font-bold text-gray-400 leading-normal block">
-              💡 Why we ask: Cold muscles are like stiff rubber bands—they tear easily. Warm muscles stretch safely.
-            </span>
-          </div>
+          <div className="border-l-2 border-gray-700 pl-2"><span className="text-[9px] text-gray-500 italic leading-tight block">*Why we ask: Cold muscle tissue acts like a brittle rubber band, increasing the acute risk of micro-tears under load.</span></div>
         </div>
 
         <div className="mt-2 border-t border-gray-800/80 pt-3">
           <div className="flex justify-between items-center text-[10px] uppercase font-black text-gray-500 mb-1">
-            <span>Overall Body Fatigue</span>
-            <span className={`text-white ${fTheme.bg} px-1.5 py-0.5 rounded-xs border ${fTheme.border} transition-colors`}>
-              Level {fatigue} / 5
-            </span>
+            <span>CNS Systemic Fatigue State</span>
+            <span className="text-white bg-red-500/20 px-1.5 py-0.5 rounded-xs border border-red-500/30">Tier {fatigue} / 5</span>
           </div>
-          <input type="range" min="1" max="5" value={fatigue} onChange={(e) => setFatigue(parseInt(e.target.value))} className={`w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer ${fTheme.accent} transition-colors`} />
-          <span className={`text-[8px] font-bold block mt-1 ${fTheme.text} transition-colors`}>
-            {fatigue <= 2 ? '(Fresh & Ready)' : fatigue === 3 ? '(Slightly Tired)' : '(Completely Exhausted)'}
-          </span>
+          <input type="range" min="1" max="5" value={fatigue} onChange={(e) => setFatigue(parseInt(e.target.value))} className="w-full h-1.5 bg-gray-800 rounded-lg appearance-none cursor-pointer accent-red-500" />
         </div>
 
-        {/* 🛠️ CONDITIONAL RESULTS SHOW HERE */}
-        {isScanComplete ? (
-          <div className="animate-fadeIn mt-2">
-            <div className={`p-4 border border-dashed rounded-xs text-center flex flex-col gap-1.5 ${risk.border} ${risk.bg} shadow-lg`}>
-              <span className="text-[9px] uppercase font-black tracking-widest text-gray-400">Estimated Injury Risk Score</span>
-              <span className="text-4xl font-black text-white tracking-wide font-ops">{riskScore}%</span>
-              <span className={`text-[10px] font-black uppercase tracking-wider ${risk.color}`}>{risk.label}</span>
-              <div className="w-full h-1.5 bg-gray-900 rounded-full mt-2 overflow-hidden border border-black">
-                <div className={`h-full transition-all duration-500 ease-out ${risk.bar}`} style={{ width: `${riskScore}%` }} />
-              </div>
-            </div>
-
-            <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5 text-[11px] mt-3">
-              <span className="text-[11px] uppercase font-black text-[#00F5D4] tracking-wider block mb-0.5">🛡️ Safety Advice For Today</span>
-              {riskScore >= 75 ? (
-                <div className="text-gray-400 flex flex-col gap-1 leading-normal">
-                  <p>• <strong className="text-red-400">Drop the Weight:</strong> It's risky to lift this heavy today. Drop the weight by 15-20% to stay safe.</p>
-                  <p>• <strong className="text-gray-200">Protect Joints:</strong> Don't push to failure. Focus on slow and controlled reps.</p>
-                </div>
-              ) : riskScore >= 45 ? (
-                <div className="text-gray-400 flex flex-col gap-1 leading-normal">
-                  <p>• <strong className="text-yellow-400">Be Careful:</strong> You are in the moderate risk zone. Keep your form strict and don't ego lift.</p>
-                  <p>• <strong className="text-gray-200">Listen to Your Body:</strong> If you feel any sharp pain or pinching, stop the set immediately.</p>
-                </div>
-              ) : (
-                <div className="text-gray-400 flex flex-col gap-1 leading-normal">
-                  <p>• <strong className="text-[#00F5D4]">Good to Go:</strong> You are in the safe zone. Make sure to brace your core tightly before lifting heavy.</p>
-                  <p>• <strong className="text-gray-500">Stay Hydrated:</strong> Keep drinking water to keep your joints properly lubricated.</p>
-                </div>
-              )}
-            </div>
+        <div className={`mt-2 p-4 border border-dashed rounded-xs text-center flex flex-col gap-1.5 ${risk.border} ${risk.bg} shadow-lg`}>
+          <span className="text-[9px] uppercase font-black tracking-widest text-gray-400">Calculated Pathological Risk Index</span>
+          <span className="text-4xl font-black text-white tracking-wide font-ops">{riskScore}%</span>
+          <span className={`text-[10px] font-black uppercase tracking-wider ${risk.color}`}>{risk.label}</span>
+          <div className="w-full h-1.5 bg-gray-900 rounded-full mt-2 overflow-hidden border border-black">
+            <div className={`h-full transition-all duration-500 ease-out ${risk.bar}`} style={{ width: `${riskScore}%` }} />
           </div>
-        ) : (
-          <div className="mt-3 p-5 border border-dashed border-gray-700/50 bg-black/40 text-center rounded-xs flex flex-col gap-2 animate-fadeIn">
-            <span className="text-2xl opacity-50">🤖</span>
-            <span className="text-[10px] font-bold text-[#00F5D4] uppercase tracking-widest">Awaiting Scanner Data</span>
-            <span className="text-[10px] text-gray-400 leading-relaxed">
-              Please answer all questions above to generate your customized safety risk report.
-            </span>
-          </div>
-        )}
+        </div>
 
-        {/* 🛠️ RESET BUTTON NOW OUTSIDE THE SCAN COMPLETE BOX */}
-        {isStarted && (
-          <button 
-            onClick={handleReset}
-            className="w-full mt-3 py-2.5 bg-[#121212] border border-gray-800 hover:border-gray-600 hover:bg-[#161616] text-gray-400 hover:text-white text-[10px] font-black uppercase tracking-widest rounded-xs transition-colors cursor-pointer flex items-center justify-center gap-2 animate-fadeIn"
-          >
-            <span className="text-lg leading-none">↺</span> Reset Radar
-          </button>
-        )}
+        <div className="border border-[#2a2a2a] bg-[#121212]/40 rounded-xs p-3 flex flex-col gap-1.5 text-[11px] mt-1">
+          <span className="text-[11px] uppercase font-black text-[#00F5D4] tracking-wider block mb-0.5">🛡️ Real-time Mitigation Protocols</span>
+          {riskScore >= 75 ? (
+            <div className="text-gray-400 flex flex-col gap-1 leading-normal">
+              <p>• <strong className="text-red-400">Neural Deload Sequence:</strong> Current loading profile is critically unsafe. Deload immediate working sets by 15-20%.</p>
+              <p>• <strong className="text-gray-200">Joint Protection:</strong> Avoid forced muscular failure today and switch strictly to controlled tempo training.</p>
+            </div>
+          ) : riskScore >= 45 ? (
+            <div className="text-gray-400 flex flex-col gap-1 leading-normal">
+              <p>• <strong className="text-yellow-400">Cautionary Warning:</strong> You are entering the ambient risk zone. Maintain absolute strict form.</p>
+              <p>• <strong className="text-gray-200">Pre-Exhaustion Check:</strong> If you feel unexpected joint shear, terminate the set immediately.</p>
+            </div>
+          ) : (
+            <div className="text-gray-400 flex flex-col gap-1 leading-normal">
+              <p>• <strong className="text-[#00F5D4]">Kinetic Clearance:</strong> Working risk is within safe parameters. Ensure strict core stabilization before executing main sets.</p>
+              <p>• <strong className="text-gray-500">Hydration Node:</strong> Maintain fluid levels to avoid tissue elasticity reduction.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
 
-function Navbar({ theme, toggleTheme }) {
+function Navbar({ theme, toggleTheme, ToolsOpen, setToolsOpen }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [toolsOpen, setToolsOpen] = useState(false)
   const [calcWeight, setCalcWeight] = useState('')
   const [calcReps, setCalcReps] = useState('')
   const [plateWeight, setPlateWeight] = useState('')
@@ -438,7 +363,7 @@ function Navbar({ theme, toggleTheme }) {
 
 
 useEffect(() => {
-  if (toolsOpen) {
+  if (ToolsOpen) {
     // Blocks the background page from scrolling
     document.body.style.overflow = 'hidden';
   } else {
@@ -450,7 +375,7 @@ useEffect(() => {
   return () => {
     document.body.style.overflow = 'unset';
   };
-}, [toolsOpen]);
+}, [ToolsOpen]);
 
   const isActive = (path) => location.pathname === path
   const isDark = theme === 'dark'
@@ -588,7 +513,7 @@ useEffect(() => {
             </button>
             <button
               onClick={() => setToolsOpen(true)}
-              className="bg-[#FF6B35] hover:bg-[#cc5429] text-white px-4 lg:px-6 py-2.5 text-xs font-nav font-black tracking-[0.12em] uppercase transition-all cursor-pointer active:scale-95 shadow-[0_0_15px_rgba(255,107,53,0.2)]"
+className="bg-[#4ADE80] hover:bg-[#34c759] text-black px-5 py-2 font-black text-[10px] sm:text-xs tracking-widest uppercase transition-all duration-300 shadow-[0_0_15px_rgba(74,222,128,0.5)] flex items-center gap-2 cursor-pointer border border-[#4ADE80] animate-pulse hover:animate-none"
             >
               ⚡ Lifter Tools
             </button>
@@ -635,7 +560,7 @@ useEffect(() => {
       </nav>
 
       {/* 🚀 LIFTER TOOLS SIDE OVERLAY PANEL — Safely out of Nav flow, absolute peak z-index */}
-      {toolsOpen && (
+      {ToolsOpen && (
         <div className="fixed inset-0" style={{ zIndex: 99999 }}>
           {/* Backdrop blur layer */}
           <div 
