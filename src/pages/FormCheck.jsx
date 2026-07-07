@@ -90,7 +90,8 @@ If the photo matches a "${exercise}", analyze their form normally and return:
 {
   "good": ["1-2 specific things done well"],
   "fix": [{"issue": "visible form mistake", "correction": "how to adjust body to fix it"}],
-  "alternatives": [{"name": "exercise name", "reason": "why it suits them"}]
+  "alternatives": [{"name": "Exercise name", "reason": "Why it suits them"}, {"name": "Exercise name 2", "reason": "Why it suits them"}, {"name": "Exercise name 3", "reason": "Why it suits them"}],
+"confidence": {"score": 85, "label": "High Confidence", "note": "Clear photo, good lighting, full body visible"}
 }
 Return ONLY the raw JSON object, no markdown code blocks, no extra text.`
 
