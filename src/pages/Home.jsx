@@ -132,15 +132,19 @@ function Home({ theme, setToolsOpen }) {
                 <span className="text-xs font-bold tracking-[1px] text-[#2EC4B6]">● AI Analyzing</span>
               </div>
 
-<div className={`border border-dashed border-[rgba(255,107,53,0.3)] p-16 text-center mb-6 relative overflow-hidden ${isDark ? 'bg-[#0d0d0d]' : 'bg-[#F4F6F6]'}`}>
+{/* 👇 Div ko Link bana diya hai taaki ye poora box ek tagda button ban jaye */}
+<Link 
+  to="/form-check" 
+  className={`block border border-dashed border-[rgba(255,107,53,0.3)] p-16 text-center mb-6 relative overflow-hidden cursor-pointer transition-all duration-300 hover:border-solid hover:border-[#FF6B35] hover:bg-[rgba(255,107,53,0.05)] no-underline ${isDark ? 'bg-[#0d0d0d]' : 'bg-[#F4F6F6]'}`}
+>
   {/* 🪖 Holographic Laser Scanner Line */}
   <div className="absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#2EC4B6] to-transparent shadow-[0_0_12px_#2EC4B6] pointer-events-none"
     style={{ animation: 'scan 2.5s linear infinite alternate' }} />
 
-  <div className="text-5xl mb-3 relative z-10">📸</div>
+  <div className="text-5xl mb-3 relative z-10 transition-transform duration-300 hover:scale-110">📸</div>
   <div className="text-[#FF6B35] font-bold mb-1 relative z-10">Drop your photo here</div>
   <div className={`text-sm relative z-10 ${isDark ? 'text-gray-500' : 'text-gray-400'}`}>or tap to upload</div>
-</div>
+</Link>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -304,10 +308,10 @@ function Home({ theme, setToolsOpen }) {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 my-4 w-full">
                 {[
                   { name: '1RM Calculator', icon: '🧮' },
-                  { name: 'Plate Math Engine', icon: '⚖️' },
-                  { name: 'Smart Rest Timer', icon: '⏱️' },
+                  { name: 'Barbell Plate Calculator', icon: '⚖️' },
+                  { name: 'Chrono Cadence Matrix', icon: '⏱️' },
                   { name: 'Wilks/DOTS Tracker', icon: '📈' },
-                  { name: 'TDEE & Macro Split', icon: '🔥' },
+                  { name: 'TDEE Calculator', icon: '🔥' },
                   { name: 'Warmup Set Planner', icon: '💪' }
                 ].map((tool, idx) => (
                   <div key={idx} className={`p-3 border flex items-center gap-3 transition-all duration-300 hover:border-[#2EC4B6]/60 ${isDark ? 'bg-[#0f0f0f] border-gray-800 text-gray-300' : 'bg-white border-gray-300 text-gray-700'}`}>
@@ -318,10 +322,14 @@ function Home({ theme, setToolsOpen }) {
               </div>
             </div>
 
-            {/* 🔥 Right Column (Active Terminal Layout) */}
+{/* 🔥 Right Column (Active Terminal Layout) - NOW FULLY CLICKABLE */}
             {/* 👇 W-full kiya taaki ye apne 50% share ko pooray tarike se occupy kare */}
             <div className="w-full hidden md:block">
-              <div className="p-6 border relative rounded-xs bg-[#111111] border-gray-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group/terminal overflow-hidden min-h-[350px] flex flex-col justify-between">
+              {/* 👇 Main outer div ko Link bana diya hai jisse click karte hi form-check khulega */}
+              <Link 
+                to="/form-check"
+                className="block p-6 border relative rounded-xs bg-[#111111] border-gray-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)] group/terminal overflow-hidden min-h-[350px] flex flex-col justify-between cursor-pointer transition-all duration-300 hover:scale-[1.02] hover:border-[#2EC4B6]/50 hover:shadow-[0_0_30px_rgba(46,196,182,0.15)] no-underline"
+              >
                 
                 <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-[rgba(46,196,182,0.05)] via-transparent to-transparent h-12 w-full animate-scan" style={{ animation: 'scan 4s linear infinite' }} />
                 
@@ -370,7 +378,7 @@ function Home({ theme, setToolsOpen }) {
                   </div>
                 </div>
 
-              </div>
+              </Link>
             </div>
 
           </div>
@@ -419,7 +427,7 @@ function Home({ theme, setToolsOpen }) {
           <br></br>
         <div className="flex flex-wrap gap-4 justify-center">
 <Link to="/form-check" 
-            className="h-11 flex items-center justify-center border border-[#FF6B36]/40 hover:border-[#FF6B36] bg-[#2EC4B6]/5 text-[#FF6B36] hover:text-white px-5 text-xs font-nav font-black tracking-[0.15em] uppercase transition-all duration-300 active:scale-95 shadow-[0_4px_15px_rgba(46,196,182,0.05)]"
+            className="border border-[#FF6B35]/40 hover:border-[#FF6B35] bg-[#FF6B35]/5 text-[#FF6B35] hover:text-white px-10 py-4 font-black text-sm tracking-[2px] uppercase transition-all duration-300 no-underline shadow-[0_4px_15px_rgba(255,107,53,0.05)]"
           >
             ANALYZE MY LIFT
           </Link>
