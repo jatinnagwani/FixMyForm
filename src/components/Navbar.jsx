@@ -319,6 +319,7 @@ function Navbar({ theme, toggleTheme, ToolsOpen, setToolsOpen }) {
   const [fatHip, setFatHip] = useState('') // Required only if gender is female
   const [weightUnit, setWeightUnit] = useState('KG')
   const [activeTool, setActiveTool] = useState(null) // 🧠 Tracks active tool view
+  const [panelVisible, setPanelVisible] = useState(false) // 🎬 Controls slide-in/out animation state
   const [showSuggestions, setShowSuggestions] = useState(false)
   const location = useLocation()
   const navigate = useNavigate()
@@ -361,14 +362,26 @@ function Navbar({ theme, toggleTheme, ToolsOpen, setToolsOpen }) {
     setTrackerLogs(trackerLogs.filter(log => log.id !== id));
   };
 
+  const handleCloseTools = () => {
+  setPanelVisible(false); // 🎬 pehle slide-out animation start karo
+  setTimeout(() => {
+    setToolsOpen(false);  // phir actual unmount 300ms baad (transition duration match)
+    setActiveTool(null);
+  }, 300);
+};
+
 
 useEffect(() => {
   if (ToolsOpen) {
     // Blocks the background page from scrolling
     document.body.style.overflow = 'hidden';
+    // 🎬 Panel ko ek frame baad "visible" set karo taaki transition trigger ho (achanak pop na ho)
+    const frame = requestAnimationFrame(() => setPanelVisible(true));
+    return () => cancelAnimationFrame(frame);
   } else {
     // Restores default scrolling when sidebar is closed
     document.body.style.overflow = 'unset';
+    setPanelVisible(false);
   }
 
   // Cleanup to ensure no scroll lock leaks if component unmounts
@@ -560,19 +573,19 @@ className="bg-[#4ADE80] hover:bg-[#34c759] text-black px-5 py-2 font-black text-
       </nav>
 
       {/* 🚀 LIFTER TOOLS SIDE OVERLAY PANEL — Safely out of Nav flow, absolute peak z-index */}
-      {ToolsOpen && (
-        <div className="fixed inset-0" style={{ zIndex: 99999 }}>
-          {/* Backdrop blur layer */}
-          <div 
-            className="fixed inset-0 bg-black/85 backdrop-blur-xs transition-opacity duration-300" 
-            onClick={() => { setToolsOpen(false); setActiveTool(null); }} 
-          />
+{(ToolsOpen || panelVisible) && (
+  <div className="fixed inset-0" style={{ zIndex: 99999 }}>
+    {/* Backdrop blur layer */}
+    <div 
+      className={`fixed inset-0 bg-black/85 backdrop-blur-xs transition-opacity duration-300 ${panelVisible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={handleCloseTools}
+    />
 
 {/* Sliding Sidebar Box Container */}
-          <div 
-            className="fixed right-0 top-0 w-full max-w-md h-full shadow-2xl flex flex-col p-6 border-l border-dashed transition-all duration-300 overflow-y-auto overscroll-contain"
-            style={{ backgroundColor: isDark ? '#0f0f0f' : '#ffffff', borderColor: isDark ? '#2a2a2a' : '#e0e0e0', color: isDark ? '#ffffff' : '#121212' }}
-          >
+    <div 
+      className={`fixed right-0 top-0 w-full max-w-md h-full shadow-2xl flex flex-col p-6 border-l border-dashed transition-transform duration-300 ease-out overflow-y-auto overscroll-contain ${panelVisible ? 'translate-x-0' : 'translate-x-full'}`}
+      style={{ backgroundColor: isDark ? '#0f0f0f' : '#ffffff', borderColor: isDark ? '#2a2a2a' : '#e0e0e0', color: isDark ? '#ffffff' : '#121212' }}
+    >
             {/* Header Area */}
             <div className="flex items-center justify-between pb-4 border-b border-dashed border-gray-700/30 mb-6">
               <div className="flex items-center gap-2">
@@ -587,7 +600,7 @@ className="bg-[#4ADE80] hover:bg-[#34c759] text-black px-5 py-2 font-black text-
                   </div>
                 )}
               </div>
-              <button onClick={() => { setToolsOpen(false); setActiveTool(null); }} className="text-xs font-bold hover:text-red-400 transition-colors uppercase cursor-pointer">✕ CLOSE</button>
+              <button onClick={handleCloseTools} className="text-xs font-bold hover:text-red-400 transition-colors uppercase cursor-pointer">✕ CLOSE</button>
             </div>
 
             {/* List Menu View */}

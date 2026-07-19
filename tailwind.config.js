@@ -12,6 +12,17 @@ fontFamily: {
   nav: ['Syne', 'sans-serif'],                // 🎨 Navbar Elements (Stays Protected)
   ops: ['"Black Ops One"', 'system-ui'],       // 🪖 Brand Logo (Stays Protected)
 },
+keyframes: {
+  scanline: {
+    '0%': { top: '0%', opacity: '0' },
+    '10%': { opacity: '1' },
+    '90%': { opacity: '1' },
+    '100%': { top: '100%', opacity: '0' },
+  },
+},
+animation: {
+  scanline: 'scanline 3s linear infinite',
+},
   },
 },
   plugins: [],
