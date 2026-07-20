@@ -245,8 +245,6 @@ export default function Swapper() {
     {/* Radial Glow behind everything */}
     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#FF6B35]/5 rounded-full blur-3xl pointer-events-none"></div>
 
-    {/* Scanning Line Animation */}
-    <div className="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-[#00F5D4]/60 to-transparent animate-scanline pointer-events-none"></div>
 
     {/* Corner Reticle Brackets */}
     <div className="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-[#FF6B35]/40"></div>
