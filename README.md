@@ -69,16 +69,6 @@ npm run dev
 
 ---
 
-## 🗺️ Roadmap
-
-- [ ] User accounts to persist form score history
-- [ ] Video-based form analysis (not just single frame)
-- [ ] More exercises & muscle group coverage
-
----
-
 ## 🤝 Contributing
 
 This is a personal project, but suggestions and issues are welcome, feel free to open a PR or an issue.
-
----
